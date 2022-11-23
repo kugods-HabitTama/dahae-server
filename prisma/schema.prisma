@@ -13,9 +13,9 @@ datasource db {
 // model schema
 model User {
     id String @id @default(uuid())
-    createdAt Datetime @default(now()) @map("created_at")
-    updatedAt Datetime @updatedAt @map("updated_at")
-    deletedAt Datetime? @map("deleted_at")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    deletedAt DateTime? @map("deleted_at")
     accountId String @map("account_id")
     name String
     role Role @default(USER)
@@ -23,6 +23,8 @@ model User {
     os OS
     streak Int @default(0)
     marketingAgreement Boolean @map("marketing_agreement")
+    pets Pet[]
+    habits Habit[]
 
     @@map("user")
 }
@@ -31,8 +33,8 @@ model Pet {
     id Int @id @default(autoincrement())
     user User @relation(fields: [userId], references: [id])
     userId String @map("user_id")
-    createdAt Datetime @default(now()) @map("created_at")
-    updatedAt Datetime @updatedAt @map("updated_at")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
     name String
     type Type
     level Int @default(1)
@@ -43,38 +45,40 @@ model Pet {
     @@map("pet")
 }
 
-model RoutineSetting {
+model Habit {
     id Int @id @default(autoincrement())
     user User @relation(fields: [userId], references: [id])
     userId String @map("user_id")
-    createdAt Datetime @default(now()) @map("created_at")
-    updatedAt Datetime @updatedAt @map("updated_at")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
     isActive Boolean @default(true) @map("is_active")
     title String
     action String
     value Int
     unit Unit
     memo String
-    startDate Datetime @map("start_date")
-    endDate Datetime @map("end_date")
+    time Int?
+    startDate DateTime @map("start_date")
+    endDate DateTime @map("end_date")
     days Int
+    habitRecords HabitRecord[]
 
-    @@map("routine_setting")
+    @@map("habit")
 }
 
-model Routine {
+model HabitRecord {
     id Int @id @default(autoincrement())
-    routineSetting RoutineSetting @relation(fields: [settingId], references: [id])
-    settingId Id @map("setting_id")
-    createdAt Datetime @default(now()) @map("created_at")
-    updatedAt Datetime @updatedAt @map("updated_at")
-    date Datetime
+    habit Habit @relation(fields: [habitId], references: [id])
+    habitId Int @map("habit_id")
+    createdAt DateTime @default(now()) @map("created_at")
+    updatedAt DateTime @updatedAt @map("updated_at")
+    date DateTime
     day Day
     progress Int @default(0)
     accomplished Boolean @default(false)
 
-    @@unique([settingId, date])
-    @@map("routine")
+    @@unique([habitId, date])
+    @@map("habit_record")
 }
 
 // enum type
