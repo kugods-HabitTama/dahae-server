@@ -10,6 +10,101 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// model schema
 model User {
-  id Int @id @default(autoincrement())
+    id String @id @default(uuid())
+    createdAt Datetime @default(now()) @map("created_at")
+    updatedAt Datetime @updatedAt @map("updated_at")
+    deletedAt Datetime? @map("deleted_at")
+    accountId String @map("account_id")
+    name String
+    role Role @default(USER)
+    photo String?
+    os OS
+    streak Int @default(0)
+    marketingAgreement Boolean @map("marketing_agreement")
+
+    @@map("user")
+}
+
+model Pet {
+    id Int @id @default(autoincrement())
+    user User @relation(fields: [userId], references: [id])
+    userId String @map("user_id")
+    createdAt Datetime @default(now()) @map("created_at")
+    updatedAt Datetime @updatedAt @map("updated_at")
+    name String
+    type Type
+    level Int @default(1)
+    xp Int @default(0)
+    attachment Int @default(5000)
+    health Int @default(100)
+
+    @@map("pet")
+}
+
+model RoutineSetting {
+    id Int @id @default(autoincrement())
+    user User @relation(fields: [userId], references: [id])
+    userId String @map("user_id")
+    createdAt Datetime @default(now()) @map("created_at")
+    updatedAt Datetime @updatedAt @map("updated_at")
+    isActive Boolean @default(true) @map("is_active")
+    title String
+    action String
+    value Int
+    unit Unit
+    memo String
+    startDate Datetime @map("start_date")
+    endDate Datetime @map("end_date")
+    days Int
+
+    @@map("routine_setting")
+}
+
+model Routine {
+    id Int @id @default(autoincrement())
+    routineSetting RoutineSetting @relation(fields: [settingId], references: [id])
+    settingId Id @map("setting_id")
+    createdAt Datetime @default(now()) @map("created_at")
+    updatedAt Datetime @updatedAt @map("updated_at")
+    date Datetime
+    day Day
+    progress Int @default(0)
+    accomplished Boolean @default(false)
+
+    @@unique([settingId, date])
+    @@map("routine")
+}
+
+// enum type
+enum Role {
+    USER
+    ADMIN
+}
+
+enum OS {
+    ANDROID
+    IOS
+}
+
+enum Type {
+    Tiger
+    Eagle
+}
+
+enum Unit {
+    cm
+    g
+    ml
+}
+
+enum Day {
+    Mon
+    Tue
+    Wed
+    Thu
+    Fri
+    Sat
+    Sun
 }
