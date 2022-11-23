@@ -59,7 +59,7 @@ model Habit {
     memo String
     time Int?
     startDate DateTime @map("start_date")
-    endDate DateTime @map("end_date")
+    endDate DateTime? @map("end_date")
     days Int
     habitRecords HabitRecord[]
 
