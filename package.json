@@ -36,6 +36,7 @@
     "class-validator": "^0.13.2",
     "cross-env": "^7.0.3",
     "dotenv": "^16.0.3",
+    "joi": "^17.7.0",
     "pg": "^8.8.0",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
