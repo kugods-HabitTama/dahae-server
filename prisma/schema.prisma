@@ -18,9 +18,9 @@ model User {
   deletedAt          DateTime? @map("deleted_at")
   accountId          String    @map("account_id")
   name               String
-  role               Role      @default(USER)
+  role               UserRole  @default(USER)
   photo              String?
-  os                 OS
+  os                 UserOS
   streak             Int       @default(0)
   marketingAgreement Boolean   @map("marketing_agreement")
   pets               Pet[]
@@ -36,7 +36,7 @@ model Pet {
   createdAt  DateTime @default(now()) @map("created_at")
   updatedAt  DateTime @updatedAt @map("updated_at")
   name       String
-  type       Type
+  type       PetType
   level      Int      @default(1)
   xp         Int      @default(0)
   attachment Int      @default(5000)
@@ -55,7 +55,7 @@ model Habit {
   title        String
   action       String
   value        Int
-  unit         Unit
+  unit         HabitUnit
   memo         String
   time         Int?
   startDate    DateTime      @map("start_date")
@@ -67,43 +67,51 @@ model Habit {
 }
 
 model HabitRecord {
-  id           Int      @id @default(autoincrement())
-  habit        Habit    @relation(fields: [habitId], references: [id])
-  habitId      Int      @map("habit_id")
-  createdAt    DateTime @default(now()) @map("created_at")
-  updatedAt    DateTime @updatedAt @map("updated_at")
+  id           Int            @id @default(autoincrement())
+  habit        Habit          @relation(fields: [habitId], references: [id])
+  habitId      Int            @map("habit_id")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
   date         DateTime
-  day          Day
-  progress     Int      @default(0)
-  accomplished Boolean  @default(false)
+  day          HabitRecordDay
+  progress     Int            @default(0)
+  accomplished Boolean        @default(false)
 
   @@unique([habitId, date])
   @@map("habit_record")
 }
 
 // enum type
-enum Role {
+enum UserRole {
   USER
   ADMIN
+
+  @@map("user_role")
 }
 
-enum OS {
+enum UserOS {
   ANDROID
   IOS
+
+  @@map("user_os")
 }
 
-enum Type {
+enum PetType {
   Tiger
   Eagle
+
+  @@map("pet_type")
 }
 
-enum Unit {
+enum HabitUnit {
   cm
   g
   ml
+
+  @@map("habit_unit")
 }
 
-enum Day {
+enum HabitRecordDay {
   Mon
   Tue
   Wed
@@ -111,4 +119,6 @@ enum Day {
   Fri
   Sat
   Sun
+
+  @@map("habit_record_day")
 }
