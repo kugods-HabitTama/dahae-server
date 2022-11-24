@@ -12,103 +12,103 @@ datasource db {
 
 // model schema
 model User {
-    id String @id @default(uuid())
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-    deletedAt DateTime? @map("deleted_at")
-    accountId String @map("account_id")
-    name String
-    role Role @default(USER)
-    photo String?
-    os OS
-    streak Int @default(0)
-    marketingAgreement Boolean @map("marketing_agreement")
-    pets Pet[]
-    habits Habit[]
+  id                 String    @id @default(uuid())
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+  accountId          String    @map("account_id")
+  name               String
+  role               Role      @default(USER)
+  photo              String?
+  os                 OS
+  streak             Int       @default(0)
+  marketingAgreement Boolean   @map("marketing_agreement")
+  pets               Pet[]
+  habits             Habit[]
 
-    @@map("user")
+  @@map("user")
 }
 
 model Pet {
-    id Int @id @default(autoincrement())
-    user User @relation(fields: [userId], references: [id])
-    userId String @map("user_id")
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-    name String
-    type Type
-    level Int @default(1)
-    xp Int @default(0)
-    attachment Int @default(5000)
-    health Int @default(100)
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @map("user_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  name       String
+  type       Type
+  level      Int      @default(1)
+  xp         Int      @default(0)
+  attachment Int      @default(5000)
+  health     Int      @default(100)
 
-    @@map("pet")
+  @@map("pet")
 }
 
 model Habit {
-    id Int @id @default(autoincrement())
-    user User @relation(fields: [userId], references: [id])
-    userId String @map("user_id")
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-    isActive Boolean @default(true) @map("is_active")
-    title String
-    action String
-    value Int
-    unit Unit
-    memo String
-    time Int?
-    startDate DateTime @map("start_date")
-    endDate DateTime? @map("end_date")
-    days Int
-    habitRecords HabitRecord[]
+  id           Int           @id @default(autoincrement())
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String        @map("user_id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  isActive     Boolean       @default(true) @map("is_active")
+  title        String
+  action       String
+  value        Int
+  unit         Unit
+  memo         String
+  time         Int?
+  startDate    DateTime      @map("start_date")
+  endDate      DateTime?     @map("end_date")
+  days         Int
+  habitRecords HabitRecord[]
 
-    @@map("habit")
+  @@map("habit")
 }
 
 model HabitRecord {
-    id Int @id @default(autoincrement())
-    habit Habit @relation(fields: [habitId], references: [id])
-    habitId Int @map("habit_id")
-    createdAt DateTime @default(now()) @map("created_at")
-    updatedAt DateTime @updatedAt @map("updated_at")
-    date DateTime
-    day Day
-    progress Int @default(0)
-    accomplished Boolean @default(false)
+  id           Int      @id @default(autoincrement())
+  habit        Habit    @relation(fields: [habitId], references: [id])
+  habitId      Int      @map("habit_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  date         DateTime
+  day          Day
+  progress     Int      @default(0)
+  accomplished Boolean  @default(false)
 
-    @@unique([habitId, date])
-    @@map("habit_record")
+  @@unique([habitId, date])
+  @@map("habit_record")
 }
 
 // enum type
 enum Role {
-    USER
-    ADMIN
+  USER
+  ADMIN
 }
 
 enum OS {
-    ANDROID
-    IOS
+  ANDROID
+  IOS
 }
 
 enum Type {
-    Tiger
-    Eagle
+  Tiger
+  Eagle
 }
 
 enum Unit {
-    cm
-    g
-    ml
+  cm
+  g
+  ml
 }
 
 enum Day {
-    Mon
-    Tue
-    Wed
-    Thu
-    Fri
-    Sat
-    Sun
+  Mon
+  Tue
+  Wed
+  Thu
+  Fri
+  Sat
+  Sun
 }
