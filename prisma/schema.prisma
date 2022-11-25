@@ -10,6 +10,115 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+// model schema
 model User {
-  id Int @id @default(autoincrement())
+  id                 String    @id @default(uuid())
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @updatedAt @map("updated_at")
+  deletedAt          DateTime? @map("deleted_at")
+  accountId          String    @map("account_id")
+  name               String
+  role               UserRole  @default(USER)
+  photo              String?
+  os                 UserOS
+  streak             Int       @default(0)
+  marketingAgreement Boolean   @map("marketing_agreement")
+  pets               Pet[]
+  habits             Habit[]
+
+  @@map("user")
+}
+
+model Pet {
+  id         Int      @id @default(autoincrement())
+  user       User     @relation(fields: [userId], references: [id])
+  userId     String   @map("user_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  name       String
+  type       PetType
+  level      Int      @default(1)
+  xp         Int      @default(0)
+  attachment Int      @default(5000)
+  health     Int      @default(100)
+
+  @@map("pet")
+}
+
+model Habit {
+  id           Int           @id @default(autoincrement())
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String        @map("user_id")
+  createdAt    DateTime      @default(now()) @map("created_at")
+  updatedAt    DateTime      @updatedAt @map("updated_at")
+  isActive     Boolean       @default(true) @map("is_active")
+  title        String
+  action       String
+  value        Int
+  unit         HabitUnit
+  memo         String
+  time         Int?
+  startDate    DateTime      @map("start_date")
+  endDate      DateTime?     @map("end_date")
+  days         Int
+  habitRecords HabitRecord[]
+
+  @@map("habit")
+}
+
+model HabitRecord {
+  id           Int            @id @default(autoincrement())
+  habit        Habit          @relation(fields: [habitId], references: [id])
+  habitId      Int            @map("habit_id")
+  createdAt    DateTime       @default(now()) @map("created_at")
+  updatedAt    DateTime       @updatedAt @map("updated_at")
+  date         DateTime
+  day          HabitRecordDay
+  progress     Int            @default(0)
+  accomplished Boolean        @default(false)
+
+  @@unique([habitId, date])
+  @@map("habit_record")
+}
+
+// enum type
+enum UserRole {
+  USER
+  ADMIN
+
+  @@map("user_role")
+}
+
+enum UserOS {
+  ANDROID
+  IOS
+
+  @@map("user_os")
+}
+
+enum PetType {
+  Tiger
+  Eagle
+
+  @@map("pet_type")
+}
+
+enum HabitUnit {
+  cm
+  g
+  ml
+
+  @@map("habit_unit")
+}
+
+enum HabitRecordDay {
+  Mon
+  Tue
+  Wed
+  Thu
+  Fri
+  Sat
+  Sun
+
+  @@map("habit_record_day")
 }
