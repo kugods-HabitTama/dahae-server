@@ -10,5 +10,8 @@ export const configModule = ConfigModule.forRoot({
     POSTGRES_PASSWORD: Joi.string().required(),
     POSTGRES_DB: Joi.string().required(),
     DATABASE_URL: Joi.string().required(),
+    JWT_ACCESS_TOKEN_EXPIRE: Joi.string().required(),
+    JWT_REFRESH_TOKEN_EXPIRE: Joi.string().required(),
+    JWT_SECRET_KEY: Joi.string().required(),
   }),
 });
