@@ -16,7 +16,8 @@ model User {
   createdAt          DateTime  @default(now()) @map("created_at")
   updatedAt          DateTime  @updatedAt @map("updated_at")
   deletedAt          DateTime? @map("deleted_at")
-  accountId          String    @map("account_id")
+  email              String    @unique
+  password           String
   name               String
   role               UserRole  @default(USER)
   photo              String?
