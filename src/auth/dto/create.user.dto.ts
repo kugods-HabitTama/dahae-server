@@ -1,32 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty } from 'class-validator';
-import { UserOS } from '@prisma/client';
 
 export class CreateUserDto {
-  @ApiProperty({
-    description: '이메일',
-  })
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ description: 'id', type: String })
+  id!: string;
+
+  @ApiProperty({ description: '이메일', type: String })
   email!: string;
 
-  @ApiProperty({
-    description: '패스워드',
-  })
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ description: '패스워드', type: String })
   password!: string;
 
-  @ApiProperty({
-    description: '이름',
-  })
-  @IsString()
-  @IsNotEmpty()
+  @ApiProperty({ description: '이름', type: String })
   name!: string;
-
-  @ApiProperty({
-    description: 'os',
-  })
-  @IsNotEmpty()
-  os!: UserOS;
 }

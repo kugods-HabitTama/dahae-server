@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/user/user.repository';
-import { TokenResponseDto } from './dto/token.response.dto';
 import { LoginUserDto } from './dto/login.user.dto';
-import { CreateUserDto } from 'src/auth/dto/create.user.dto';
-import { User } from '@prisma/client';
+import { CreateUserDto } from './dto/create.user.dto';
+import { LoginUserPayload } from './payload/login.user.payload';
+import { CreateUserPayload } from './payload/create.user.payload';
 import * as bcrypt from 'bcryptjs';
 
 @Injectable()
@@ -14,13 +14,15 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginUserDto: LoginUserDto, res): Promise<TokenResponseDto> {
-    const user = await this.userRepository.getUserByEmail(loginUserDto.email);
+  async login(loginUserPayload: LoginUserPayload, res): Promise<LoginUserDto> {
+    const user = await this.userRepository.getUserByEmail(
+      loginUserPayload.email,
+    );
 
     if (!user) throw new Error('Email does not exist');
 
     const passwordMatch = await bcrypt.compare(
-      loginUserDto.password,
+      loginUserPayload.password,
       user.password,
     );
 
@@ -36,18 +38,20 @@ export class AuthService {
     return { accessToken };
   }
 
-  async register(createUserDto: CreateUserDto): Promise<User> {
-    const user = await this.userRepository.getUserByEmail(createUserDto.email);
+  async register(createUserPayload: CreateUserPayload): Promise<CreateUserDto> {
+    const user = await this.userRepository.getUserByEmail(
+      createUserPayload.email,
+    );
 
     if (user) throw new Error('Email alreay exists');
 
-    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+    const hashedPassword = await bcrypt.hash(createUserPayload.password, 10);
 
     return await this.userRepository.create({
-      email: createUserDto.email,
+      email: createUserPayload.email,
       password: hashedPassword,
-      name: createUserDto.name,
-      os: createUserDto.os,
+      name: createUserPayload.name,
+      os: createUserPayload.os,
     });
   }
 
