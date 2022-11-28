@@ -21,6 +21,19 @@ export class UserRepository {
     });
   }
 
+  async updateRefreshToken(id: string, refreshToken: string): Promise<User> {
+    const update = await this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        refreshToken,
+      },
+    });
+
+    return update;
+  }
+
   async getUserByEmail(email: string): Promise<User> {
     return await this.prisma.user.findUnique({
       where: {

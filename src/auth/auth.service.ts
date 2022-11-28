@@ -26,15 +26,12 @@ export class AuthService {
 
     if (!passwordMatch) throw new Error('Password mismatch');
 
-    const [accessToken, refreshToken] = await Promise.all([
-      this.generatedAccessToken(user.id),
-      this.generatedRefreshToken(user.id),
-    ]);
+    if (!user.refreshToken) {
+      const refreshToken = await this.generateRefreshToken(user.id);
+      await this.userRepository.updateRefreshToken(user.id, refreshToken);
+    }
 
-    res.cookie('refresh_token', refreshToken, {
-      path: '/auth',
-      httpOnly: true,
-    });
+    const accessToken = await this.generateAccessToken(user.id);
 
     return { accessToken };
   }
@@ -57,18 +54,16 @@ export class AuthService {
   async checkEmailExist(email: string): Promise<boolean> {
     const user = await this.userRepository.getUserByEmail(email);
 
-    if (user) return true;
-    return false;
+    return !!user;
   }
 
   async checkNameExist(name: string): Promise<boolean> {
     const user = await this.userRepository.getUserByName(name);
 
-    if (user) return true;
-    return false;
+    return !!user;
   }
 
-  protected async generatedAccessToken(userId: string): Promise<string> {
+  protected async generateAccessToken(userId: string): Promise<string> {
     return this.jwtService.signAsync(
       { user_id: userId },
       {
@@ -77,7 +72,7 @@ export class AuthService {
     );
   }
 
-  protected async generatedRefreshToken(userId: string): Promise<string> {
+  protected async generateRefreshToken(userId: string): Promise<string> {
     return this.jwtService.signAsync(
       { user_id: userId },
       {
