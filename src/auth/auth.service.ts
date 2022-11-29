@@ -1,7 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/user/user.repository';
-import { LoginUserDto } from './dto/login.user.dto';
+import { TokenResponseT } from './type/token.response.type';
 import { CreateUserDto } from './dto/create.user.dto';
 import { LoginUserPayload } from './payload/login.user.payload';
 import { CreateUserPayload } from './payload/create.user.payload';
@@ -14,12 +14,12 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginUserPayload: LoginUserPayload, res): Promise<LoginUserDto> {
+  async login(loginUserPayload: LoginUserPayload): Promise<TokenResponseT> {
     const user = await this.userRepository.getUserByEmail(
       loginUserPayload.email,
     );
 
-    if (!user) throw new Error('Email does not exist');
+    if (!user) throw new NotFoundException('Email does not exist');
 
     const passwordMatch = await bcrypt.compare(
       loginUserPayload.password,
@@ -28,14 +28,18 @@ export class AuthService {
 
     if (!passwordMatch) throw new Error('Password mismatch');
 
+    let refreshToken;
+
     if (!user.refreshToken) {
-      const refreshToken = await this.generateRefreshToken(user.id);
+      refreshToken = await this.generateRefreshToken(user.id);
       await this.userRepository.updateRefreshToken(user.id, refreshToken);
+    } else {
+      refreshToken = user.refreshToken;
     }
 
     const accessToken = await this.generateAccessToken(user.id);
 
-    return { accessToken };
+    return { accessToken, refreshToken };
   }
 
   async register(createUserPayload: CreateUserPayload): Promise<CreateUserDto> {

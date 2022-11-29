@@ -8,7 +8,6 @@ import {
 import { AuthService } from './auth.service';
 import { CreateUserPayload } from './payload/create.user.payload';
 import { LoginUserPayload } from './payload/login.user.payload';
-import { LoginUserDto } from './dto/login.user.dto';
 import { CreateUserDto } from './dto/create.user.dto';
 import { boolean } from 'joi';
 
@@ -19,12 +18,23 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'user login' })
-  @ApiOkResponse({ type: LoginUserDto })
   async login(
     @Body() loginUserPayload: LoginUserPayload,
     @Res({ passthrough: true }) res,
-  ): Promise<LoginUserDto> {
-    return this.authService.login(loginUserPayload, res);
+  ): Promise<void> {
+    const { accessToken, refreshToken } = await this.authService.login(
+      loginUserPayload,
+    );
+
+    res.cookie('refresh_token', refreshToken, {
+      path: '/auth',
+      httpOnly: true,
+    });
+
+    res.cookie('access_token', accessToken, {
+      path: '/auth',
+      httpOnly: true,
+    });
   }
 
   @Post('register')
