@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/user/user.repository';
 import { TokenResponseT } from './type/token.response.type';
@@ -26,16 +30,10 @@ export class AuthService {
       user.password,
     );
 
-    if (!passwordMatch) throw new Error('Password mismatch');
+    if (!passwordMatch) throw new BadRequestException('Password mismatch');
 
-    let refreshToken;
-
-    if (!user.refreshToken) {
-      refreshToken = await this.generateRefreshToken(user.id);
-      await this.userRepository.updateRefreshToken(user.id, refreshToken);
-    } else {
-      refreshToken = user.refreshToken;
-    }
+    const refreshToken =
+      user.refreshToken || (await this.generateRefreshToken(user.id));
 
     const accessToken = await this.generateAccessToken(user.id);
 
@@ -47,7 +45,7 @@ export class AuthService {
       createUserPayload.email,
     );
 
-    if (user) throw new Error('Email alreay exists');
+    if (user) throw new BadRequestException('Email already exists');
 
     const hashedPassword = await bcrypt.hash(createUserPayload.password, 10);
 
@@ -81,11 +79,14 @@ export class AuthService {
   }
 
   protected async generateRefreshToken(userId: string): Promise<string> {
-    return this.jwtService.signAsync(
+    const refreshToken = await this.jwtService.signAsync(
       { user_id: userId },
       {
         expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRE,
       },
     );
+    this.userRepository.updateRefreshToken(userId, refreshToken);
+
+    return refreshToken;
   }
 }

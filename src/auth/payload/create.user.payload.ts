@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsDefined } from 'class-validator';
+import { IsString, IsDefined, IsEnum } from 'class-validator';
 import { UserOS } from '@prisma/client';
 
 export class CreateUserPayload {
@@ -28,6 +28,7 @@ export class CreateUserPayload {
   name!: string;
 
   @IsDefined()
+  @IsEnum(UserOS)
   @ApiProperty({
     description: 'os',
   })

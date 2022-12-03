@@ -26,7 +26,7 @@ model User {
   marketingAgreement Boolean   @map("marketing_agreement")
   pets               Pet[]
   habits             Habit[]
-  refreshToken       String?
+  refreshToken       String?   @map("refresh_token")
 
   @@map("user")
 }

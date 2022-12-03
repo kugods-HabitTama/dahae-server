@@ -48,7 +48,7 @@ export class AuthController {
 
   @Get('email/duplicate/:email')
   @ApiOperation({ summary: 'check whether an email exists' })
-  @ApiOkResponse({ type: boolean })
+  @ApiOkResponse({ type: Boolean })
   @ApiParam({
     name: 'email',
     required: true,
@@ -60,8 +60,8 @@ export class AuthController {
   }
 
   @Get('name/duplicate/:name')
-  @ApiOperation({ summary: 'check whether a name exsits' })
-  @ApiOkResponse({ type: boolean })
+  @ApiOperation({ summary: 'check whether a name exists' })
+  @ApiOkResponse({ type: Boolean })
   @ApiParam({
     name: 'name',
     required: true,
