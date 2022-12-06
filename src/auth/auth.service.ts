@@ -85,7 +85,7 @@ export class AuthService {
         expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRE,
       },
     );
-    this.userRepository.updateRefreshToken(userId, refreshToken);
+    await this.userRepository.updateRefreshToken(userId, refreshToken);
 
     return refreshToken;
   }
