@@ -48,4 +48,12 @@ export class UserRepository {
       },
     });
   }
+
+  async getUserById(id: string): Promise<User> {
+    return await this.prisma.user.findUnique({
+      where: {
+        id
+      }
+    });
+  }
 }
