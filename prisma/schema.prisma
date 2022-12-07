@@ -57,11 +57,10 @@ model Habit {
   title        String
   action       String
   value        Int
-  unit         HabitUnit
-  memo         String
-  time         Int?
-  startDate    DateTime      @map("start_date")
-  endDate      DateTime?     @map("end_date")
+  unit         String
+  time         DateTime?     @db.Time
+  startDate    DateTime      @map("start_date") @db.Date
+  endDate      DateTime?     @map("end_date") @db.Date
   days         Int
   habitRecords HabitRecord[]
 
@@ -74,7 +73,7 @@ model HabitRecord {
   habitId      Int            @map("habit_id")
   createdAt    DateTime       @default(now()) @map("created_at")
   updatedAt    DateTime       @updatedAt @map("updated_at")
-  date         DateTime
+  date         DateTime       @db.Date
   day          HabitRecordDay
   progress     Int            @default(0)
   accomplished Boolean        @default(false)
@@ -103,14 +102,6 @@ enum PetType {
   Eagle
 
   @@map("pet_type")
-}
-
-enum HabitUnit {
-  cm
-  g
-  ml
-
-  @@map("habit_unit")
 }
 
 enum HabitRecordDay {
