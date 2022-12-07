@@ -50,9 +50,10 @@ export class UserRepository {
   }
 
   async getUserById(id: string): Promise<User> {
-    return await this.prisma.user.findUnique({
+    return await this.prisma.user.findFirst({
       where: {
         id,
+        deletedAt: null,
       },
     });
   }
