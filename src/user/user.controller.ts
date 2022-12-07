@@ -1,5 +1,10 @@
 import { Body, Controller, Post, UseGuards } from '@nestjs/common';
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+} from '@nestjs/swagger';
 import { UserService } from './user.service';
 import { TestDto } from './dto/test.dto';
 import { TestPayload } from './payload/test.payload';
@@ -11,6 +16,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   // jwt guard 예시입니다.
+  @ApiBearerAuth()
   @Post('guard-test')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'jwt guard test 합니다.' })
