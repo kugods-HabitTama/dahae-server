@@ -3,6 +3,7 @@ import {
   IsDateString,
   IsDefined,
   IsEnum,
+  IsMilitaryTime,
   IsNotEmpty,
   IsOptional,
   IsPositive,
@@ -13,6 +14,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { HabitRecordDay } from '@prisma/client';
 
 export class CreateHabitPayload {
+  @IsDefined()
   @IsUUID()
   @ApiProperty({
     type: String,
@@ -20,6 +22,7 @@ export class CreateHabitPayload {
   })
   userId!: string;
 
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
@@ -28,6 +31,7 @@ export class CreateHabitPayload {
   })
   title!: string;
 
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
@@ -44,6 +48,7 @@ export class CreateHabitPayload {
   })
   value!: number;
 
+  @IsDefined()
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
@@ -53,28 +58,30 @@ export class CreateHabitPayload {
   unit!: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsMilitaryTime()
   @ApiProperty({
     type: String,
     description: '수행 시간',
   })
-  time?: Date;
+  time?: string;
 
-  @IsDateString()
+  @IsDefined()
+  @IsDateString({ strict: true })
   @ApiProperty({
     type: String,
     description: '시작 날짜',
   })
-  startDate!: Date;
+  startDate!: string;
 
   @IsOptional()
-  @IsDateString()
+  @IsDateString({ strict: true })
   @ApiProperty({
     type: String,
     description: '종료 날짜',
   })
-  endDate?: Date;
+  endDate?: string;
 
+  @IsDefined()
   @ArrayNotEmpty()
   @IsEnum(HabitRecordDay, { each: true })
   @ApiProperty({
