@@ -71,7 +71,7 @@ export class AuthService {
 
   protected async generateAccessToken(userId: string): Promise<string> {
     return this.jwtService.signAsync(
-      { user_id: userId },
+      { userId: userId },
       {
         expiresIn: process.env.JWT_ACCESS_TOKEN_EXPIRE,
       },
@@ -80,12 +80,12 @@ export class AuthService {
 
   protected async generateRefreshToken(userId: string): Promise<string> {
     const refreshToken = await this.jwtService.signAsync(
-      { user_id: userId },
+      { userId: userId },
       {
         expiresIn: process.env.JWT_REFRESH_TOKEN_EXPIRE,
       },
     );
-    this.userRepository.updateRefreshToken(userId, refreshToken);
+    await this.userRepository.updateRefreshToken(userId, refreshToken);
 
     return refreshToken;
   }

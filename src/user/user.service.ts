@@ -3,6 +3,7 @@ import { UserRepository } from './user.repository';
 import { TestPayload } from './payload/test.payload';
 import { TestDto } from './dto/test.dto';
 import { TestType } from './types/test.type';
+import { UserInfoType } from './types/userInfo.type';
 
 @Injectable()
 export class UserService {
@@ -18,5 +19,20 @@ export class UserService {
     };
 
     return TestDto.of(data);
+  }
+
+  async getUserInfoById(userId: string): Promise<UserInfoType> {
+    const user = await this.userRepository.getUserById(userId);
+    return {
+      id: user.id,
+      createdAt: user.createdAt,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      photo: user.photo,
+      os: user.os,
+      streak: user.streak,
+      marketingAgreement: user.marketingAgreement,
+    };
   }
 }
