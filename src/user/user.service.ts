@@ -3,7 +3,7 @@ import { UserRepository } from './user.repository';
 import { TestPayload } from './payload/test.payload';
 import { TestDto } from './dto/test.dto';
 import { TestType } from './types/test.type';
-import {UserInfoDto} from "./dto/userInfo.dto";
+import { UserInfoDto } from './dto/userInfo.dto';
 
 @Injectable()
 export class UserService {
