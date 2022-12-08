@@ -2,63 +2,25 @@ import { Injectable } from '@nestjs/common';
 import { HabitRepository } from './habit.repository';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { CreateHabitType } from './type/create.habit.type';
+import { HabitRecordDayConst } from './const/habitRecordDay.const';
 
 @Injectable()
 export class HabitService {
   constructor(private readonly habitRepository: HabitRepository) {}
 
   async createHabit(createHabitPayload: CreateHabitPayload): Promise<void> {
-    const {
-      userId,
-      title,
-      action,
-      value,
-      unit,
-      time,
-      startDate,
-      endDate,
-      days,
-    } = createHabitPayload;
+    const { time, startDate, endDate, days } = createHabitPayload;
 
-    let dayBit = 0;
+    // 요일을 bit 합으로 변환
+    const dayBit = days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0);
 
-    // days 배열을 bit 로 변환
-    days.forEach((day) => {
-      switch (day) {
-        case 'Mon':
-          dayBit += 1;
-          break;
-        case 'Tue':
-          dayBit += 2;
-          break;
-        case 'Wed':
-          dayBit += 4;
-          break;
-        case 'Thu':
-          dayBit += 8;
-          break;
-        case 'Fri':
-          dayBit += 16;
-          break;
-        case 'Sat':
-          dayBit += 32;
-          break;
-        case 'Sun':
-          dayBit += 64;
-          break;
-      }
-    });
-
-    const habitTime = new Date();
+    // time 을 Date 타입으로 변환
     const [hh, mm] = time.split(':');
-    habitTime.setUTCHours(Number(hh), Number(mm));
+    const habitTime = new Date();
+    habitTime.setUTCHours(+hh, +mm);
 
     const habitData: CreateHabitType = {
-      userId,
-      title,
-      action,
-      value,
-      unit,
+      ...createHabitPayload,
       time: habitTime,
       startDate: new Date(startDate),
       endDate: new Date(endDate),
