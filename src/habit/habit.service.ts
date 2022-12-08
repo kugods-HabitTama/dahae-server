@@ -18,7 +18,7 @@ export class HabitService {
     }
 
     // endDate 검증
-    if (endDate || endDate < startDate) {
+    if (endDate && endDate < startDate) {
       throw new BadRequestException('invalid endDate');
     }
 
@@ -26,9 +26,12 @@ export class HabitService {
     const dayBit = days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0);
 
     // time 을 Date 타입으로 변환
-    const [hh, mm] = time.split(':');
-    const habitTime = new Date();
-    habitTime.setUTCHours(+hh, +mm);
+    let habitTime = null;
+    if (time) {
+      const [hh, mm] = time.split(':');
+      habitTime = new Date();
+      habitTime.setUTCHours(+hh, +mm);
+    }
 
     const habitData: CreateHabitType = {
       ...createHabitPayload,
