@@ -12,8 +12,8 @@ export class HabitService {
     const { time, startDate, endDate, days } = createHabitPayload;
 
     // startDate 검증
-    const today = new Date().toJSON().slice(0, 10);
-    if (startDate < today) {
+    const date = new Date();
+    if (startDate < date.toJSON().slice(0, 10)) {
       throw new BadRequestException('invalid startDate');
     }
 
@@ -29,8 +29,8 @@ export class HabitService {
     let habitTime = null;
     if (time) {
       const [hh, mm] = time.split(':');
-      habitTime = new Date();
-      habitTime.setUTCHours(+hh, +mm);
+      habitTime = date;
+      habitTime.setUTCHours(+hh, +mm, 0, 0);
     }
 
     const habitData: CreateHabitType = {
