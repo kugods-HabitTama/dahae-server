@@ -8,20 +8,11 @@ import {
   IsOptional,
   IsPositive,
   IsString,
-  IsUUID,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HabitRecordDay } from '@prisma/client';
 
 export class CreateHabitPayload {
-  @IsDefined()
-  @IsUUID()
-  @ApiProperty({
-    type: String,
-    description: '사용자 id',
-  })
-  userId!: string;
-
   @IsDefined()
   @IsNotEmpty()
   @IsString()

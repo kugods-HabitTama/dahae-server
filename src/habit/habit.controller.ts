@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateHabitPayload } from './payload/create.habit.payload';
@@ -14,8 +14,11 @@ export class HabitController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'create habit' })
   async createHabit(
-    @Body() createHabitPayload: CreateHabitPayload,
+    @Req() req,
+    @Body()
+    createHabitPayload: CreateHabitPayload,
   ): Promise<void> {
-    return this.habitService.createHabit(createHabitPayload);
+    const { id } = req.user;
+    return this.habitService.createHabit(id, createHabitPayload);
   }
 }

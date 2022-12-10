@@ -8,7 +8,10 @@ import { HabitRecordDayConst } from './const/habitRecordDay.const';
 export class HabitService {
   constructor(private readonly habitRepository: HabitRepository) {}
 
-  async createHabit(createHabitPayload: CreateHabitPayload): Promise<void> {
+  async createHabit(
+    userId: string,
+    createHabitPayload: CreateHabitPayload,
+  ): Promise<void> {
     const { time, startDate, endDate, days } = createHabitPayload;
 
     // startDate 검증
@@ -35,9 +38,10 @@ export class HabitService {
 
     const habitData: CreateHabitType = {
       ...createHabitPayload,
+      userId,
       time: habitTime,
       startDate: new Date(startDate),
-      endDate: new Date(endDate),
+      endDate: endDate ? new Date(endDate) : null,
       days: dayBit,
     };
 
