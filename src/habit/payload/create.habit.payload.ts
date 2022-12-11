@@ -12,6 +12,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HabitRecordDay } from '@prisma/client';
+import { IsAfter } from '../../common/validators/isAfterConstraint';
 
 export class CreateHabitPayload {
   @IsDefined()
@@ -61,6 +62,7 @@ export class CreateHabitPayload {
 
   @IsDefined()
   @IsDateString({ strict: true })
+  @IsAfter()
   @ApiProperty({
     type: String,
     description: '시작 날짜',
@@ -70,6 +72,7 @@ export class CreateHabitPayload {
 
   @IsOptional()
   @IsDateString({ strict: true })
+  @IsAfter('startDate')
   @ApiProperty({
     type: String,
     description: '종료 날짜',
