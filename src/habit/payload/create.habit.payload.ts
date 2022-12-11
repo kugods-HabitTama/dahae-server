@@ -3,11 +3,12 @@ import {
   IsDateString,
   IsDefined,
   IsEnum,
+  IsInt,
   IsMilitaryTime,
   IsNotEmpty,
   IsOptional,
-  IsPositive,
   IsString,
+  Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { HabitRecordDay } from '@prisma/client';
@@ -32,7 +33,8 @@ export class CreateHabitPayload {
   action!: string;
 
   @IsDefined()
-  @IsPositive()
+  @IsInt()
+  @Min(0)
   @ApiProperty({
     type: Number,
     description: '목표치',
