@@ -57,7 +57,7 @@ export class CreateHabitPayload {
     description: '수행 시간',
     example: '10:10',
   })
-  time?: string;
+  time: string | null;
 
   @IsDefined()
   @IsDateString({ strict: true })
@@ -75,7 +75,7 @@ export class CreateHabitPayload {
     description: '종료 날짜',
     example: '2022-12-11',
   })
-  endDate?: string;
+  endDate: string | null;
 
   @IsDefined()
   @ArrayNotEmpty()
@@ -86,5 +86,5 @@ export class CreateHabitPayload {
     enum: HabitRecordDay,
     enumName: 'HabitRecordDay',
   })
-  days: HabitRecordDay[];
+  days!: HabitRecordDay[];
 }
