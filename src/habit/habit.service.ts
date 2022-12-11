@@ -10,9 +10,10 @@ export class HabitService {
 
   async createHabit(
     userId: string,
-    createHabitPayload: CreateHabitPayload,
+    payload: CreateHabitPayload,
   ): Promise<void> {
-    const { time, startDate, endDate, days } = createHabitPayload;
+    const { title, action, value, unit, time, startDate, endDate, days } =
+      payload;
 
     // startDate 검증
     const date = new Date();
@@ -37,8 +38,11 @@ export class HabitService {
     }
 
     const habitData: CreateHabitType = {
-      ...createHabitPayload,
       userId,
+      title,
+      action,
+      value,
+      unit,
       time: habitTime,
       startDate: new Date(startDate),
       endDate: endDate ? new Date(endDate) : null,

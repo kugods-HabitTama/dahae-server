@@ -9,9 +9,7 @@ export class HabitRepository {
 
   create(habitData: CreateHabitType): Promise<Habit> {
     return this.prisma.habit.create({
-      data: {
-        ...habitData,
-      },
+      data: habitData,
     });
   }
 }
