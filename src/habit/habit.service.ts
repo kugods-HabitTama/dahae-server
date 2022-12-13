@@ -6,6 +6,7 @@ import {
   convertHabitTimeToString,
   convertDayBitToString,
 } from 'src/utils/date';
+import { ChangeProgressPayload } from './payload/change.progress.payload';
 
 @Injectable()
 export class HabitService {
@@ -30,5 +31,9 @@ export class HabitService {
     });
 
     return dayTransformedHabits;
+  }
+
+  async changeProgress(payload: ChangeProgressPayload): Promise<void> {
+    await this.habitRepository.changeProgress(payload);
   }
 }

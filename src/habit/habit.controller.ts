@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Post,
+  Patch,
+  Req,
+  UseGuards,
+} from '@nestjs/common';
 import { HabitService } from './habit.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { CreateHabitPayload } from './payload/create.habit.payload';
@@ -6,6 +14,7 @@ import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { GetHabitDto } from './dto/get.habit.dto';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { UserInfoType } from 'src/user/types/userInfo.type';
+import { ChangeProgressPayload } from './payload/change.progress.payload';
 
 @ApiTags('Habit API')
 @Controller('habit')
@@ -34,5 +43,15 @@ export class HabitController {
   ): Promise<GetHabitDto[]> {
     const { id } = user;
     return this.habitService.getHabitList(id);
+  }
+
+  @ApiBearerAuth()
+  @Patch('/')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'change habit progress' })
+  async changeProgress(
+    @Body() changeProgressPayload: ChangeProgressPayload,
+  ): Promise<void> {
+    return this.habitService.changeProgress(changeProgressPayload);
   }
 }
