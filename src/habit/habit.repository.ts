@@ -37,4 +37,13 @@ export class HabitRepository {
       },
     });
   }
+
+  getHabits(userId: string): Promise<Habit[]> {
+    return this.prisma.habit.findMany({
+      where: {
+        userId,
+        isActive: true,
+      },
+    });
+  }
 }

@@ -11,7 +11,7 @@ import {
   Min,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { HabitRecordDay } from '@prisma/client';
+import { HabitRecordDay, HabitUnit } from '@prisma/client';
 import { IsAfter } from '../../common/validators/isAfterConstraint';
 
 export class CreateHabitPayload {
@@ -46,10 +46,10 @@ export class CreateHabitPayload {
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
-    type: String,
+    enum: HabitUnit,
     description: '단위',
   })
-  unit!: string;
+  unit!: HabitUnit;
 
   @IsOptional()
   @IsMilitaryTime()
