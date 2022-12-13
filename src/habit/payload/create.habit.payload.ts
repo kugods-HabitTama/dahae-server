@@ -58,7 +58,7 @@ export class CreateHabitPayload {
     description: '수행 시간',
     example: '10:10',
   })
-  time: string | null;
+  time?: string | null;
 
   @IsDefined()
   @IsDateString({ strict: true })
@@ -78,7 +78,7 @@ export class CreateHabitPayload {
     description: '종료 날짜',
     example: '2022-12-11',
   })
-  endDate: string | null;
+  endDate?: string | null;
 
   @IsDefined()
   @ArrayNotEmpty()
