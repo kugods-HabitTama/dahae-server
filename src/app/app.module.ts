@@ -5,10 +5,11 @@ import { CommonModule } from '../common/common.module';
 import { UserModule } from '../user/user.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { configModule } from './modules/config.module';
+import { HabitModule } from '../habit/habit.module';
 import { LoggerMiddleware } from '../common/middlewares/logger.middleware';
 
 @Module({
-  imports: [CommonModule, UserModule, AuthModule, configModule],
+  imports: [CommonModule, UserModule, AuthModule, HabitModule, configModule],
   controllers: [AppController],
   providers: [AppService],
 })
