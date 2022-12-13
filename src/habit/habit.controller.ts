@@ -15,6 +15,8 @@ import { GetHabitDto } from './dto/get.habit.dto';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { UserInfoType } from 'src/user/types/userInfo.type';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
+import { GetHabitRecordDto } from './dto/get.habit.record.dto';
+import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
 
 @ApiTags('Habit API')
 @Controller('habit')
@@ -43,6 +45,18 @@ export class HabitController {
   ): Promise<GetHabitDto[]> {
     const { id } = user;
     return this.habitService.getHabitList(id);
+  }
+
+  @ApiBearerAuth()
+  @Get('/record')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'get habit records' })
+  async getHabitRecords(
+    @CurrentUser() user: UserInfoType,
+    @Body() getHabitRecordPayload: GetHabitRecordPayload,
+  ): Promise<GetHabitRecordDto[]> {
+    const { id } = user;
+    return this.habitService.getHabitRecords(id, getHabitRecordPayload);
   }
 
   @ApiBearerAuth()

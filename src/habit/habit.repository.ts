@@ -4,6 +4,7 @@ import { Habit, HabitRecord, HabitRecordDay } from '@prisma/client';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitRecordDayConst } from './const/habitRecordDay.const';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
+import { HabitWithRecordsT } from './type/habit.with.records.type';
 
 @Injectable()
 export class HabitRepository {
@@ -44,6 +45,24 @@ export class HabitRepository {
       where: {
         userId,
         isActive: true,
+      },
+    });
+  }
+
+  getHabitRecords(userId: string, date: Date): Promise<HabitWithRecordsT[]> {
+    return this.prisma.habit.findMany({
+      where: {
+        userId,
+        habitRecords: {
+          some: {
+            date,
+          },
+        },
+      },
+      include: {
+        habitRecords: {
+          where: { date },
+        },
       },
     });
   }

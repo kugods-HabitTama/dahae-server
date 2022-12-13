@@ -7,6 +7,8 @@ import {
   convertDayBitToString,
 } from 'src/utils/date';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
+import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
+import { GetHabitRecordDto } from './dto/get.habit.record.dto';
 
 @Injectable()
 export class HabitService {
@@ -31,6 +33,38 @@ export class HabitService {
     });
 
     return dayTransformedHabits;
+  }
+
+  async getHabitRecords(
+    userId: string,
+    payload: GetHabitRecordPayload,
+  ): Promise<GetHabitRecordDto[]> {
+    const { date } = payload;
+
+    const habitWithRecords = await this.habitRepository.getHabitRecords(
+      userId,
+      new Date(date),
+    );
+
+    const habitRecords = habitWithRecords.map((habit) => {
+      return {
+        id: habit.id,
+        title: habit.title,
+        action: habit.action,
+        value: habit.value,
+        unit: habit.unit,
+        memo: habit.memo,
+        startDate: habit.startDate,
+        endDate: habit.endDate,
+        time: convertHabitTimeToString(habit.time),
+        recordId: habit.habitRecords[0].id,
+        days: [habit.habitRecords[0].day],
+        progress: habit.habitRecords[0].progress,
+        accomplished: habit.habitRecords[0].accomplished,
+      };
+    });
+
+    return habitRecords;
   }
 
   async changeProgress(payload: ChangeProgressPayload): Promise<void> {
