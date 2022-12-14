@@ -22,16 +22,12 @@ export const convertDayBitToString = (days: number) => {
   return habitDayArr;
 };
 
-export const convertHabitTimeToString = (habitTime: number) => {
-  if (!habitTime) return null;
-
-  const date = new Date(habitTime);
-
-  const hh = date.getHours();
-  const mm = date.getMinutes();
+export const convertHabitTimeToString = (habitTime: Date) => {
+  const hh = habitTime.getUTCHours();
+  const mm = habitTime.getUTCMinutes();
 
   const formattedString =
-    (hh >= 10 ? '' + hh : '0' + hh) + (mm >= 10 ? '' + mm : '0' + mm);
+    (hh >= 10 ? '' + hh : '0' + hh) + ':' + (mm >= 10 ? '' + mm : '0' + mm);
 
   return formattedString;
 };

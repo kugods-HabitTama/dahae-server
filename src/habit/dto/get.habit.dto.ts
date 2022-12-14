@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { HabitRecordDay, HabitUnit } from '@prisma/client';
+import { HabitRecordDay } from '@prisma/client';
 import { IsOptional } from 'class-validator';
 
 export class GetHabitDto {
@@ -15,11 +15,8 @@ export class GetHabitDto {
   @ApiProperty({ type: Number, description: '목표치' })
   value!: number;
 
-  @ApiProperty({ description: '단위', enum: HabitUnit, enumName: 'HabitUnit' })
-  unit!: HabitUnit;
-
-  @ApiProperty({ type: String, description: '메모' })
-  memo!: string;
+  @ApiProperty({ description: '단위', type: String })
+  unit!: string;
 
   @ApiProperty({ type: Number, description: '수행 시간', example: '10:10' })
   time!: string | null;

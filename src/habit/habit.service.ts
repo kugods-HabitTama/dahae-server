@@ -53,7 +53,6 @@ export class HabitService {
         action: habit.action,
         value: habit.value,
         unit: habit.unit,
-        memo: habit.memo,
         startDate: habit.startDate,
         endDate: habit.endDate,
         time: convertHabitTimeToString(habit.time),
