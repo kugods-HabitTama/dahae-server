@@ -1,3 +1,5 @@
+import { HabitRecordDay } from '@prisma/client';
+
 const KR_TIME_DIFF = 9 * 60 * 60 * 1000;
 
 /**
@@ -8,7 +10,7 @@ export const formatToKSTDate = (date: Date) => {
   return new Date(utc + KR_TIME_DIFF);
 };
 
-export const convertDayBitToString = (days: number) => {
+export const convertDayBitToString = (days: number): HabitRecordDay[] => {
   const dayArr = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
   const habitDayArr = [];
@@ -22,7 +24,7 @@ export const convertDayBitToString = (days: number) => {
   return habitDayArr;
 };
 
-export const convertHabitTimeToString = (habitTime: Date) => {
+export const convertHabitTimeToString = (habitTime: Date): string => {
   const hh = habitTime.getUTCHours();
   const mm = habitTime.getUTCMinutes();
 
