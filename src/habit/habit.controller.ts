@@ -3,10 +3,10 @@ import {
   Controller,
   Get,
   Post,
-  Patch,
   Req,
   UseGuards,
   Query,
+  Put,
 } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -61,7 +61,7 @@ export class HabitController {
   }
 
   @ApiBearerAuth()
-  @Patch('/')
+  @Put('/')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'change habit progress' })
   async changeProgress(
