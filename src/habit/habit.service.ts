@@ -78,6 +78,10 @@ export class HabitService {
     await this.habitRepository.changeProgress(payload);
   }
 
+  async deleteHabit(id: number): Promise<void> {
+    await this.habitRepository.delete(id);
+  }
+
   getUnprogressedHabits(
     habits: GetHabitDto[],
     day: HabitRecordDay,
