@@ -6,6 +6,7 @@ import {
   Patch,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -53,10 +54,10 @@ export class HabitController {
   @ApiOperation({ summary: 'get habit records' })
   async getHabitRecords(
     @CurrentUser() user: UserInfoType,
-    @Body() getHabitRecordPayload: GetHabitRecordPayload,
+    @Query() query: GetHabitRecordPayload,
   ): Promise<GetHabitRecordDto[]> {
     const { id } = user;
-    return this.habitService.getHabitRecords(id, getHabitRecordPayload);
+    return this.habitService.getHabitRecords(id, query);
   }
 
   @ApiBearerAuth()
