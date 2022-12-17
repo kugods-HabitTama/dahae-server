@@ -40,7 +40,7 @@ export class HabitRepository {
     });
   }
 
-  getHabits(userId: string): Promise<Habit[]> {
+  async getHabits(userId: string): Promise<Habit[]> {
     return this.prisma.habit.findMany({
       where: {
         userId,
@@ -49,7 +49,10 @@ export class HabitRepository {
     });
   }
 
-  getHabitRecords(userId: string, date: Date): Promise<HabitWithRecordsT[]> {
+  async getHabitRecords(
+    userId: string,
+    date: Date,
+  ): Promise<HabitWithRecordsT[]> {
     return this.prisma.habit.findMany({
       where: {
         userId,
