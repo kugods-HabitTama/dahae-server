@@ -7,6 +7,8 @@ import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
 import { GetHabitRecordDto } from './dto/get.habit.record.dto';
 import { convertDayBitToString } from 'src/utils/date';
 import { HabitRecordDay } from '@prisma/client';
+import { GetHabitListDto } from './dto/get.habit.list.dto';
+import { GetHabitRecordListDto } from './dto/get.habit.record.list.dto';
 
 @Injectable()
 export class HabitService {
@@ -19,18 +21,20 @@ export class HabitService {
     await this.habitRepository.create(userId, payload);
   }
 
-  async getHabitList(userId: string): Promise<GetHabitDto[]> {
+  async getHabitList(userId: string): Promise<GetHabitListDto> {
     const habits = await this.habitRepository.getHabits(userId);
 
-    return habits.map((habit) => {
+    const getHabitDtos = habits.map((habit) => {
       return GetHabitDto.of(habit);
     });
+
+    return { habits: getHabitDtos };
   }
 
   async getHabitRecords(
     userId: string,
     payload: GetHabitRecordPayload,
-  ): Promise<GetHabitRecordDto[]> {
+  ): Promise<GetHabitRecordListDto> {
     const { date } = payload;
 
     const habitWithRecords = await this.habitRepository.getHabitRecords(
@@ -42,7 +46,9 @@ export class HabitService {
       return GetHabitRecordDto.of(habit);
     });
 
-    return habitRecords;
+    return {
+      habitRecords,
+    };
   }
 
   async changeProgress(payload: ChangeProgressPayload): Promise<void> {
