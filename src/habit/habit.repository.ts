@@ -45,6 +45,9 @@ export class HabitRepository {
       where: {
         userId,
         isActive: true,
+        user: {
+          deletedAt: null,
+        },
       },
     });
   }
@@ -56,6 +59,9 @@ export class HabitRepository {
     return this.prisma.habit.findMany({
       where: {
         userId,
+        user: {
+          deletedAt: null,
+        },
         habitRecords: {
           some: {
             date,
