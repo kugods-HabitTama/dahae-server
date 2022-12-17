@@ -145,7 +145,7 @@ export class HabitRepository {
     const { id, title, action, unit, value, time, startDate, endDate, days } =
       payload;
 
-    if (title || action || unit || value || time) {
+    if (title || action || unit || value || time || time === null) {
       //soft delete 후 새로운 habit 생성
       const habit = await this.delete(id);
 
@@ -178,13 +178,14 @@ export class HabitRepository {
           action: action || habit.action,
           unit: unit || habit.unit,
           value: value === undefined ? habit.value : value,
-          time: habitTime || habit.time,
+          time: time || time === null ? habitTime : habit.time,
           startDate: startDate ? new Date(startDate) : habit.startDate,
           endDate: endDate ? new Date(endDate) : habit.endDate,
           days: dayBit || habit.days,
         },
       });
     } else {
+      //기존 habit 업데이트
       const habit = await this.prisma.habit.findUnique({
         where: {
           id,
@@ -201,7 +202,11 @@ export class HabitRepository {
         },
         data: {
           startDate: startDate ? new Date(startDate) : habit.startDate,
-          endDate: endDate ? new Date(endDate) : habit.endDate,
+          endDate: endDate
+            ? new Date(endDate)
+            : endDate === null
+            ? null
+            : habit.endDate,
           days: dayBit || habit.days,
         },
       });
