@@ -9,6 +9,7 @@ import {
   Put,
   Delete,
   Param,
+  Patch,
 } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import {
@@ -26,6 +27,7 @@ import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
 import { GetHabitListDto } from './dto/get.habit.list.dto';
 import { GetHabitRecordListDto } from './dto/get.habit.record.list.dto';
+import { UpdateHabitPayload } from './payload/update.habit.payload';
 
 @ApiTags('Habit API')
 @Controller('habit')
@@ -96,5 +98,18 @@ export class HabitController {
   })
   async deleteHabit(@Param('id') id): Promise<void> {
     return this.habitService.deleteHabit(Number(id));
+  }
+
+  @ApiBearerAuth()
+  @Patch('/')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'update habit' })
+  async updateHabit(
+    @CurrentUser() user: UserInfoType,
+    @Body()
+    updateHabitPayload: UpdateHabitPayload,
+  ): Promise<void> {
+    const { id } = user;
+    return this.habitService.updateHabit(id, updateHabitPayload);
   }
 }

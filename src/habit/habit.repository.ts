@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/services/prisma.service';
 import { Habit, HabitRecord, HabitRecordDay } from '@prisma/client';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitRecordDayConst } from './const/habitRecordDay.const';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { HabitWithRecordsT } from './type/habit.with.records.type';
+import { UpdateHabitPayload } from './payload/update.habit.payload';
 
 @Injectable()
 export class HabitRepository {
@@ -138,5 +139,72 @@ export class HabitRepository {
         isActive: false,
       },
     });
+  }
+
+  async update(userId: string, payload: UpdateHabitPayload): Promise<Habit> {
+    const { id, title, action, unit, value, time, startDate, endDate, days } =
+      payload;
+
+    if (title || action || unit || value || time) {
+      //soft delete 후 새로운 habit 생성
+      const habit = await this.delete(id);
+
+      //날짜 검증
+      if (startDate && endDate) {
+        if (startDate > endDate) throw new BadRequestException('invalid date');
+      } else if (startDate) {
+        if (new Date(startDate) > habit.endDate)
+          throw new BadRequestException('invalid startDate');
+      } else if (endDate) {
+        if (habit.startDate > new Date(endDate))
+          throw new BadRequestException('invalid endDate');
+      }
+
+      const dayBit = days
+        ? days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0)
+        : undefined;
+
+      let habitTime = null;
+      if (time) {
+        const [hh, mm] = time.split(':');
+        habitTime = new Date();
+        habitTime.setUTCHours(+hh, +mm, 0, 0);
+      }
+
+      return this.prisma.habit.create({
+        data: {
+          userId,
+          title: title || habit.title,
+          action: action || habit.action,
+          unit: unit || habit.unit,
+          value: value === undefined ? habit.value : value,
+          time: habitTime || habit.time,
+          startDate: startDate ? new Date(startDate) : habit.startDate,
+          endDate: endDate ? new Date(endDate) : habit.endDate,
+          days: dayBit || habit.days,
+        },
+      });
+    } else {
+      const habit = await this.prisma.habit.findUnique({
+        where: {
+          id,
+        },
+      });
+
+      const dayBit = days
+        ? days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0)
+        : undefined;
+
+      return this.prisma.habit.update({
+        where: {
+          id,
+        },
+        data: {
+          startDate: startDate ? new Date(startDate) : habit.startDate,
+          endDate: endDate ? new Date(endDate) : habit.endDate,
+          days: dayBit || habit.days,
+        },
+      });
+    }
   }
 }
