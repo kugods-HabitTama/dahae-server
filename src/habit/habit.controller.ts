@@ -17,11 +17,9 @@ import {
 } from '@nestjs/swagger';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
-import { GetHabitDto } from './dto/get.habit.dto';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { UserInfoType } from 'src/user/types/userInfo.type';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
-import { GetHabitRecordDto } from './dto/get.habit.record.dto';
 import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
 import { GetHabitListDto } from './dto/get.habit.list.dto';
 import { GetHabitRecordListDto } from './dto/get.habit.record.list.dto';

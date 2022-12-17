@@ -33,3 +33,10 @@ export const convertHabitTimeToString = (habitTime: Date): string => {
 
   return formattedString;
 };
+
+export const getDayStringFromDate = (date: Date): HabitRecordDay => {
+  const dayArr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+  const dayIdx = date.getDay();
+
+  return dayArr[dayIdx] as HabitRecordDay;
+};
