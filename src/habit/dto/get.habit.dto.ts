@@ -1,6 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { Habit, HabitRecordDay } from '@prisma/client';
-import { IsOptional } from 'class-validator';
 import {
   convertHabitTimeToString,
   convertDayBitToString,
@@ -28,8 +27,11 @@ export class GetHabitDto {
   @ApiProperty({ type: Date, description: '시작 날짜', example: '2022-12-11' })
   startDate!: Date;
 
-  @IsOptional()
-  @ApiProperty({ type: Date, description: '종료 날짜', example: '2022-12-11' })
+  @ApiPropertyOptional({
+    type: Date,
+    description: '종료 날짜',
+    example: '2022-12-11',
+  })
   endDate!: Date;
 
   @ApiProperty({
