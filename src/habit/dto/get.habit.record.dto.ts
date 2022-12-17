@@ -4,9 +4,6 @@ import { HabitWithRecordsT } from '../type/habit.with.records.type';
 import { GetHabitDto } from './get.habit.dto';
 
 export class GetHabitRecordDto extends GetHabitDto {
-  @ApiProperty({ type: Number, description: '습관 기록 Id' })
-  recordId!: number;
-
   @ApiProperty({
     type: Number,
     description: '진행도',
@@ -29,7 +26,6 @@ export class GetHabitRecordDto extends GetHabitDto {
       startDate: habit.startDate,
       endDate: habit.endDate,
       time: convertHabitTimeToString(habit.time),
-      recordId: habit.habitRecords[0].id,
       days: [habit.habitRecords[0].day],
       progress: habit.habitRecords[0].progress,
       accomplished: habit.habitRecords[0].accomplished,
