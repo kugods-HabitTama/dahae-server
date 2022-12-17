@@ -1,10 +1,12 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { HabitRepository } from './habit.repository';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { GetHabitDto } from './dto/get.habit.dto';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
 import { GetHabitRecordDto } from './dto/get.habit.record.dto';
+import { convertDayBitToString } from 'src/utils/date';
+import { HabitRecordDay } from '@prisma/client';
 
 @Injectable()
 export class HabitService {
@@ -44,6 +46,17 @@ export class HabitService {
   }
 
   async changeProgress(payload: ChangeProgressPayload): Promise<void> {
+    const habit = await this.habitRepository.getHabit(payload.habitId);
+    const habitDays = convertDayBitToString(habit.days);
+
+    const dayArr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const requestedDate = new Date(payload.date);
+    const dayIdx = requestedDate.getDay();
+    const requestedDay = dayArr[dayIdx] as HabitRecordDay;
+
+    if (!habitDays.includes(requestedDay))
+      throw new BadRequestException('inappropriate date request');
+
     await this.habitRepository.changeProgress(payload);
   }
 }

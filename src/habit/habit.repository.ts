@@ -76,6 +76,14 @@ export class HabitRepository {
     });
   }
 
+  async getHabit(habitId: number): Promise<Habit> {
+    return this.prisma.habit.findUnique({
+      where: {
+        id: habitId,
+      },
+    });
+  }
+
   async changeProgress(payload: ChangeProgressPayload): Promise<HabitRecord> {
     const { habitId, date, progress } = payload;
     const habit = await this.prisma.habit.findUnique({
