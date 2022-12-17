@@ -7,6 +7,8 @@ import {
   UseGuards,
   Query,
   Put,
+  Delete,
+  Param,
 } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import {
@@ -14,6 +16,7 @@ import {
   ApiCreatedResponse,
   ApiOperation,
   ApiTags,
+  ApiParam,
 } from '@nestjs/swagger';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
@@ -79,5 +82,19 @@ export class HabitController {
     @Body() changeProgressPayload: ChangeProgressPayload,
   ): Promise<void> {
     return this.habitService.changeProgress(changeProgressPayload);
+  }
+
+  @ApiBearerAuth()
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'delete habit' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'habit id',
+    type: Number,
+  })
+  async deleteHabit(@Param('id') id): Promise<void> {
+    return this.habitService.deleteHabit(Number(id));
   }
 }

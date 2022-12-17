@@ -128,4 +128,15 @@ export class HabitRepository {
       });
     }
   }
+
+  delete(id: number): Promise<Habit> {
+    return this.prisma.habit.update({
+      where: {
+        id,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+  }
 }
