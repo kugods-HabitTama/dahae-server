@@ -1,6 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { HabitRecordDay } from '@prisma/client';
+import { Habit, HabitRecordDay } from '@prisma/client';
 import { IsOptional } from 'class-validator';
+import {
+  convertHabitTimeToString,
+  convertDayBitToString,
+} from 'src/utils/date';
 
 export class GetHabitDto {
   @ApiProperty({ type: Number, description: '습관 Id' })
@@ -35,4 +39,18 @@ export class GetHabitDto {
     enumName: 'HabitRecordDay',
   })
   days!: HabitRecordDay[];
+
+  static of(habit: Habit): GetHabitDto {
+    return {
+      id: habit.id,
+      title: habit.title,
+      action: habit.action,
+      value: habit.value,
+      unit: habit.unit,
+      time: convertHabitTimeToString(habit.time),
+      startDate: habit.startDate,
+      endDate: habit.endDate,
+      days: convertDayBitToString(habit.days),
+    };
+  }
 }

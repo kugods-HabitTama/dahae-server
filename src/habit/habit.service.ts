@@ -2,10 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { HabitRepository } from './habit.repository';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { GetHabitDto } from './dto/get.habit.dto';
-import {
-  convertHabitTimeToString,
-  convertDayBitToString,
-} from 'src/utils/date';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
 import { GetHabitRecordDto } from './dto/get.habit.record.dto';
@@ -24,15 +20,9 @@ export class HabitService {
   async getHabitList(userId: string): Promise<GetHabitDto[]> {
     const habits = await this.habitRepository.getHabits(userId);
 
-    const dayTransformedHabits = habits.map((habit) => {
-      return {
-        ...habit,
-        time: convertHabitTimeToString(habit.time),
-        days: convertDayBitToString(habit.days),
-      };
+    return habits.map((habit) => {
+      return GetHabitDto.of(habit);
     });
-
-    return dayTransformedHabits;
   }
 
   async getHabitRecords(
@@ -47,20 +37,7 @@ export class HabitService {
     );
 
     const habitRecords = habitWithRecords.map((habit) => {
-      return {
-        id: habit.id,
-        title: habit.title,
-        action: habit.action,
-        value: habit.value,
-        unit: habit.unit,
-        startDate: habit.startDate,
-        endDate: habit.endDate,
-        time: convertHabitTimeToString(habit.time),
-        recordId: habit.habitRecords[0].id,
-        days: [habit.habitRecords[0].day],
-        progress: habit.habitRecords[0].progress,
-        accomplished: habit.habitRecords[0].accomplished,
-      };
+      return GetHabitRecordDto.of(habit);
     });
 
     return habitRecords;
