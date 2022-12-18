@@ -149,24 +149,38 @@ export class HabitRepository {
     const { title, action, unit, value, time, startDate, endDate, days } =
       payload;
 
+    const habit = await this.prisma.habit.findUnique({
+      where: {
+        id: habitId,
+      },
+    });
+
+    //날짜 검증
+    if (startDate && endDate) {
+      if (startDate > endDate) throw new BadRequestException('invalid date');
+    } else if (startDate) {
+      if (new Date(startDate) > habit.endDate)
+        throw new BadRequestException('invalid startDate');
+    } else if (endDate) {
+      if (habit.startDate > new Date(endDate))
+        throw new BadRequestException('invalid endDate');
+    }
+
+    const dayBit = days
+      ? days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0)
+      : undefined;
+
+    const newStartDate = startDate ? new Date(startDate) : habit.startDate;
+    const newEndDate = endDate
+      ? new Date(endDate)
+      : endDate === null
+      ? null
+      : habit.endDate;
+    const newDays = dayBit || habit.days;
+
     if (title || action || unit || value || time || time === null) {
       //soft delete 후 새로운 habit 생성
-      const habit = await this.delete(habitId);
-
-      //날짜 검증
-      if (startDate && endDate) {
-        if (startDate > endDate) throw new BadRequestException('invalid date');
-      } else if (startDate) {
-        if (new Date(startDate) > habit.endDate)
-          throw new BadRequestException('invalid startDate');
-      } else if (endDate) {
-        if (habit.startDate > new Date(endDate))
-          throw new BadRequestException('invalid endDate');
-      }
-
-      const dayBit = days
-        ? days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0)
-        : undefined;
+      await this.delete(habitId);
 
       let habitTime = null;
       if (time) {
@@ -181,37 +195,23 @@ export class HabitRepository {
           title: title || habit.title,
           action: action || habit.action,
           unit: unit || habit.unit,
-          value: value === undefined ? habit.value : value,
+          value: value || habit.value,
           time: time || time === null ? habitTime : habit.time,
-          startDate: startDate ? new Date(startDate) : habit.startDate,
-          endDate: endDate ? new Date(endDate) : habit.endDate,
-          days: dayBit || habit.days,
+          startDate: newStartDate,
+          endDate: newEndDate,
+          days: newDays,
         },
       });
     } else {
       //기존 habit 업데이트
-      const habit = await this.prisma.habit.findUnique({
-        where: {
-          id: habitId,
-        },
-      });
-
-      const dayBit = days
-        ? days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0)
-        : undefined;
-
       return this.prisma.habit.update({
         where: {
           id: habitId,
         },
         data: {
-          startDate: startDate ? new Date(startDate) : habit.startDate,
-          endDate: endDate
-            ? new Date(endDate)
-            : endDate === null
-            ? null
-            : habit.endDate,
-          days: dayBit || habit.days,
+          startDate: newStartDate,
+          endDate: newEndDate,
+          days: newDays,
         },
       });
     }
