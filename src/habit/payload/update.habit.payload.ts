@@ -1,7 +1,6 @@
 import {
   ArrayNotEmpty,
   IsDateString,
-  IsDefined,
   IsEnum,
   IsInt,
   IsMilitaryTime,
@@ -15,49 +14,37 @@ import { HabitRecordDay } from '@prisma/client';
 import { IsAfter } from '../../common/validators/isAfterConstraint';
 
 export class UpdateHabitPayload {
-  @IsDefined()
-  @IsNotEmpty()
-  @ApiProperty({
-    type: Number,
-    description: 'id',
-  })
-  id!: number;
-
-  @IsOptional()
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
     type: String,
     description: '제목',
   })
-  title!: string;
+  title?: string;
 
-  @IsOptional()
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
     type: String,
     description: '습관',
   })
-  action!: string;
+  action?: string;
 
-  @IsOptional()
   @IsInt()
   @Min(0)
   @ApiProperty({
     type: Number,
     description: '목표치',
   })
-  value!: number;
+  value?: number;
 
-  @IsOptional()
   @IsNotEmpty()
   @IsString()
   @ApiProperty({
     type: String,
     description: '단위',
   })
-  unit!: string;
+  unit?: string;
 
   @IsOptional()
   @IsMilitaryTime()
@@ -68,7 +55,6 @@ export class UpdateHabitPayload {
   })
   time?: string | null;
 
-  @IsOptional()
   @IsAfter()
   @IsDateString({ strict: true })
   @ApiProperty({
@@ -76,7 +62,7 @@ export class UpdateHabitPayload {
     description: '시작 날짜',
     example: '2022-12-11',
   })
-  startDate!: string;
+  startDate?: string;
 
   @IsOptional()
   @IsAfter()
@@ -88,7 +74,6 @@ export class UpdateHabitPayload {
   })
   endDate?: string | null;
 
-  @IsOptional()
   @ArrayNotEmpty()
   @IsEnum(HabitRecordDay, { each: true })
   @ApiProperty({
@@ -97,5 +82,5 @@ export class UpdateHabitPayload {
     enum: HabitRecordDay,
     enumName: 'HabitRecordDay',
   })
-  days!: HabitRecordDay[];
+  days?: HabitRecordDay[];
 }
