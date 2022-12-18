@@ -7,6 +7,10 @@ import {
   UseGuards,
   Query,
   Put,
+  Delete,
+  Param,
+  Patch,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import {
@@ -14,6 +18,7 @@ import {
   ApiCreatedResponse,
   ApiOperation,
   ApiTags,
+  ApiParam,
 } from '@nestjs/swagger';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
@@ -23,6 +28,7 @@ import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
 import { GetHabitListDto } from './dto/get.habit.list.dto';
 import { GetHabitRecordListDto } from './dto/get.habit.record.list.dto';
+import { UpdateHabitPayload } from './payload/update.habit.payload';
 
 @ApiTags('Habit API')
 @Controller('habit')
@@ -79,5 +85,33 @@ export class HabitController {
     @Body() changeProgressPayload: ChangeProgressPayload,
   ): Promise<void> {
     return this.habitService.changeProgress(changeProgressPayload);
+  }
+
+  @ApiBearerAuth()
+  @Delete('/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'delete habit' })
+  @ApiParam({
+    name: 'id',
+    required: true,
+    description: 'habit id',
+    type: Number,
+  })
+  async deleteHabit(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.habitService.deleteHabit(id);
+  }
+
+  @ApiBearerAuth()
+  @Patch('/:id')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'update habit' })
+  async updateHabit(
+    @CurrentUser() user: UserInfoType,
+    @Body()
+    updateHabitPayload: UpdateHabitPayload,
+    @Param('id', ParseIntPipe) habitId: number,
+  ): Promise<void> {
+    const userId = user.id;
+    return this.habitService.updateHabit(userId, habitId, updateHabitPayload);
   }
 }

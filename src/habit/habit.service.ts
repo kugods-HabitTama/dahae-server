@@ -9,6 +9,7 @@ import { convertDayBitToString, getDayStringFromDate } from 'src/utils/date';
 import { HabitRecordDay } from '@prisma/client';
 import { GetHabitListDto } from './dto/get.habit.list.dto';
 import { GetHabitRecordListDto } from './dto/get.habit.record.list.dto';
+import { UpdateHabitPayload } from './payload/update.habit.payload';
 
 @Injectable()
 export class HabitService {
@@ -76,6 +77,18 @@ export class HabitService {
       throw new BadRequestException('inappropriate date request');
 
     await this.habitRepository.changeProgress(payload);
+  }
+
+  async deleteHabit(id: number): Promise<void> {
+    await this.habitRepository.delete(id);
+  }
+
+  async updateHabit(
+    userId: string,
+    habitId: number,
+    payload: UpdateHabitPayload,
+  ): Promise<void> {
+    this.habitRepository.update(userId, habitId, payload);
   }
 
   getUnprogressedHabits(

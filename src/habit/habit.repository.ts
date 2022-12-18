@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/services/prisma.service';
 import { Habit, HabitRecord, HabitRecordDay } from '@prisma/client';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitRecordDayConst } from './const/habitRecordDay.const';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { HabitWithRecordsT } from './type/habit.with.records.type';
+import { UpdateHabitPayload } from './payload/update.habit.payload';
 
 @Injectable()
 export class HabitRepository {
@@ -124,6 +125,93 @@ export class HabitRepository {
           progress,
           date: new Date(date),
           day: dayArr[dayIdx] as HabitRecordDay,
+        },
+      });
+    }
+  }
+
+  delete(id: number): Promise<Habit> {
+    return this.prisma.habit.update({
+      where: {
+        id,
+      },
+      data: {
+        isActive: false,
+      },
+    });
+  }
+
+  async update(
+    userId: string,
+    habitId: number,
+    payload: UpdateHabitPayload,
+  ): Promise<Habit> {
+    const { title, action, unit, value, time, startDate, endDate, days } =
+      payload;
+
+    const habit = await this.prisma.habit.findUnique({
+      where: {
+        id: habitId,
+      },
+    });
+
+    //날짜 검증
+    if (startDate && endDate) {
+      if (startDate > endDate) throw new BadRequestException('invalid date');
+    } else if (startDate) {
+      if (new Date(startDate) > habit.endDate)
+        throw new BadRequestException('invalid startDate');
+    } else if (endDate) {
+      if (habit.startDate > new Date(endDate))
+        throw new BadRequestException('invalid endDate');
+    }
+
+    const dayBit = days
+      ? days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0)
+      : undefined;
+
+    const newStartDate = startDate ? new Date(startDate) : habit.startDate;
+    const newEndDate = endDate
+      ? new Date(endDate)
+      : endDate === null
+      ? null
+      : habit.endDate;
+    const newDays = dayBit || habit.days;
+
+    if (title || action || unit || value || time || time === null) {
+      //soft delete 후 새로운 habit 생성
+      await this.delete(habitId);
+
+      let habitTime = null;
+      if (time) {
+        const [hh, mm] = time.split(':');
+        habitTime = new Date();
+        habitTime.setUTCHours(+hh, +mm, 0, 0);
+      }
+
+      return this.prisma.habit.create({
+        data: {
+          userId,
+          title: title || habit.title,
+          action: action || habit.action,
+          unit: unit || habit.unit,
+          value: value || habit.value,
+          time: time || time === null ? habitTime : habit.time,
+          startDate: newStartDate,
+          endDate: newEndDate,
+          days: newDays,
+        },
+      });
+    } else {
+      //기존 habit 업데이트
+      return this.prisma.habit.update({
+        where: {
+          id: habitId,
+        },
+        data: {
+          startDate: newStartDate,
+          endDate: newEndDate,
+          days: newDays,
         },
       });
     }
