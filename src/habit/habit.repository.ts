@@ -141,13 +141,17 @@ export class HabitRepository {
     });
   }
 
-  async update(userId: string, payload: UpdateHabitPayload): Promise<Habit> {
-    const { id, title, action, unit, value, time, startDate, endDate, days } =
+  async update(
+    userId: string,
+    habitId: number,
+    payload: UpdateHabitPayload,
+  ): Promise<Habit> {
+    const { title, action, unit, value, time, startDate, endDate, days } =
       payload;
 
     if (title || action || unit || value || time || time === null) {
       //soft delete 후 새로운 habit 생성
-      const habit = await this.delete(id);
+      const habit = await this.delete(habitId);
 
       //날짜 검증
       if (startDate && endDate) {
@@ -188,7 +192,7 @@ export class HabitRepository {
       //기존 habit 업데이트
       const habit = await this.prisma.habit.findUnique({
         where: {
-          id,
+          id: habitId,
         },
       });
 
@@ -198,7 +202,7 @@ export class HabitRepository {
 
       return this.prisma.habit.update({
         where: {
-          id,
+          id: habitId,
         },
         data: {
           startDate: startDate ? new Date(startDate) : habit.startDate,

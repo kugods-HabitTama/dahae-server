@@ -10,6 +10,7 @@ import {
   Delete,
   Param,
   Patch,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import {
@@ -96,20 +97,21 @@ export class HabitController {
     description: 'habit id',
     type: Number,
   })
-  async deleteHabit(@Param('id') id): Promise<void> {
-    return this.habitService.deleteHabit(Number(id));
+  async deleteHabit(@Param('id', ParseIntPipe) id: number): Promise<void> {
+    return this.habitService.deleteHabit(id);
   }
 
   @ApiBearerAuth()
-  @Patch('/')
+  @Patch('/:id')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'update habit' })
   async updateHabit(
     @CurrentUser() user: UserInfoType,
     @Body()
     updateHabitPayload: UpdateHabitPayload,
+    @Param('id', ParseIntPipe) habitId: number,
   ): Promise<void> {
-    const { id } = user;
-    return this.habitService.updateHabit(id, updateHabitPayload);
+    const userId = user.id;
+    return this.habitService.updateHabit(userId, habitId, updateHabitPayload);
   }
 }

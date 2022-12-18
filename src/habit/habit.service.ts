@@ -85,9 +85,10 @@ export class HabitService {
 
   async updateHabit(
     userId: string,
+    habitId: number,
     payload: UpdateHabitPayload,
   ): Promise<void> {
-    this.habitRepository.update(userId, payload);
+    this.habitRepository.update(userId, habitId, payload);
   }
 
   getUnprogressedHabits(
