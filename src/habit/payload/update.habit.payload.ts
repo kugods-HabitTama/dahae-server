@@ -9,7 +9,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { HabitRecordDay } from '@prisma/client';
 import { IsAfter } from '../../common/validators/isAfterConstraint';
 
