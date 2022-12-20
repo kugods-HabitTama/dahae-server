@@ -24,9 +24,9 @@ import { CreateHabitPayload } from './payload/create.habit.payload';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { UserInfoType } from 'src/user/types/userInfo.type';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
-import { GetHabitListDto } from './dto/get.habit.list.dto';
-import { GetHabitRecordListDto } from './dto/get.habit.record.list.dto';
 import { UpdateHabitPayload } from './payload/update.habit.payload';
+import { HabitListDto } from './dto/habit.dto';
+import { HabitRecordListDto } from './dto/habit.record.dto';
 
 @ApiTags('Habit API')
 @Controller('habit')
@@ -47,11 +47,9 @@ export class HabitController {
   @UseInterceptors(DefaultUserInterceptor)
   @ApiOperation({ summary: 'get habit list' })
   @ApiCreatedResponse({
-    type: GetHabitListDto,
+    type: HabitListDto,
   })
-  async getHabitList(
-    @CurrentUser() user: UserInfoType,
-  ): Promise<GetHabitListDto> {
+  async getHabitList(@CurrentUser() user: UserInfoType): Promise<HabitListDto> {
     return this.habitService.getHabitList(user.id);
   }
 
@@ -59,12 +57,12 @@ export class HabitController {
   @UseInterceptors(DefaultUserInterceptor)
   @ApiOperation({ summary: 'get habit records' })
   @ApiCreatedResponse({
-    type: GetHabitRecordListDto,
+    type: HabitRecordListDto,
   })
   async getHabitRecords(
     @CurrentUser() user: UserInfoType,
     @Query() query: DateQuery,
-  ): Promise<GetHabitRecordListDto> {
+  ): Promise<HabitRecordListDto> {
     return this.habitService.getHabitRecords(user.id, query.date);
   }
 

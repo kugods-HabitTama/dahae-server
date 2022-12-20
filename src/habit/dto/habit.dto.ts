@@ -1,11 +1,11 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Habit, HabitRecordDay } from '@prisma/client';
 import {
   convertHabitTimeToString,
   convertDayBitToString,
 } from 'src/utils/date';
 
-export class GetHabitDto {
+export class HabitDto {
   @ApiProperty({ type: Number, description: '습관 Id' })
   id!: number;
 
@@ -48,7 +48,7 @@ export class GetHabitDto {
   })
   days!: HabitRecordDay[];
 
-  static of(habit: Habit): GetHabitDto {
+  static of(habit: Habit): HabitDto {
     return {
       id: habit.id,
       title: habit.title,
@@ -61,4 +61,9 @@ export class GetHabitDto {
       days: convertDayBitToString(habit.days),
     };
   }
+}
+
+export class HabitListDto {
+  @ApiProperty({ type: [HabitDto] })
+  habits: HabitDto[];
 }
