@@ -9,7 +9,6 @@ import { AuthService } from './auth.service';
 import { CreateUserPayload } from './payload/create.user.payload';
 import { LoginUserPayload } from './payload/login.user.payload';
 import { CreateUserDto } from './dto/create.user.dto';
-import { boolean } from 'joi';
 
 @ApiTags('Auth API')
 @Controller('auth')

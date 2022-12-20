@@ -1,3 +1,4 @@
+import { DefaultUserInterceptor } from '../common/interceptor/default.user.interceptor';
 import {
   Body,
   Controller,
@@ -10,6 +11,7 @@ import {
   Param,
   Patch,
   ParseIntPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import {
@@ -33,17 +35,17 @@ export class HabitController {
   constructor(private readonly habitService: HabitService) {}
 
   @Post('/')
+  @UseInterceptors(DefaultUserInterceptor)
   @ApiOperation({ summary: 'create habit' })
   async createHabit(
-    @Req() req,
-    @Body()
-    createHabitPayload: CreateHabitPayload,
+    @CurrentUser() user: UserInfoType,
+    @Body() createHabitPayload: CreateHabitPayload,
   ): Promise<void> {
-    const { id } = req.user;
-    return this.habitService.createHabit(id, createHabitPayload);
+    return this.habitService.createHabit(user.id, createHabitPayload);
   }
 
   @Get('/')
+  @UseInterceptors(DefaultUserInterceptor)
   @ApiOperation({ summary: 'get habit list' })
   @ApiCreatedResponse({
     type: GetHabitListDto,
@@ -92,8 +94,7 @@ export class HabitController {
   @ApiOperation({ summary: 'update habit' })
   async updateHabit(
     @CurrentUser() user: UserInfoType,
-    @Body()
-    updateHabitPayload: UpdateHabitPayload,
+    @Body() updateHabitPayload: UpdateHabitPayload,
     @Param('id', ParseIntPipe) habitId: number,
   ): Promise<void> {
     const userId = user.id;
