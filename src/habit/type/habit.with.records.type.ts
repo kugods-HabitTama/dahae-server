@@ -2,7 +2,7 @@ import { HabitRecordDay } from '@prisma/client';
 import { HabitData } from './habit.data.type';
 
 export type HabitWithRecordData = {
-  id: number;
+  id?: number;
   progress: number;
   accomplished: boolean;
   day: HabitRecordDay;
