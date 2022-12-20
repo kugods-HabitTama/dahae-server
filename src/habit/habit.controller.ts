@@ -53,11 +53,11 @@ export class HabitController {
   async getHabitList(
     @CurrentUser() user: UserInfoType,
   ): Promise<GetHabitListDto> {
-    const { id } = user;
-    return this.habitService.getHabitList(id);
+    return this.habitService.getHabitList(user.id);
   }
 
   @Get('/record')
+  @UseInterceptors(DefaultUserInterceptor)
   @ApiOperation({ summary: 'get habit records' })
   @ApiCreatedResponse({
     type: GetHabitRecordListDto,
@@ -66,8 +66,7 @@ export class HabitController {
     @CurrentUser() user: UserInfoType,
     @Query() query: GetHabitRecordPayload,
   ): Promise<GetHabitRecordListDto> {
-    const { id } = user;
-    return this.habitService.getHabitRecords(id, query);
+    return this.habitService.getHabitRecords(user.id, query);
   }
 
   @Put('/')
@@ -76,6 +75,18 @@ export class HabitController {
     @Body() changeProgressPayload: ChangeProgressPayload,
   ): Promise<void> {
     return this.habitService.changeProgress(changeProgressPayload);
+  }
+
+  @Patch('/:id')
+  @UseInterceptors(DefaultUserInterceptor)
+  @ApiOperation({ summary: 'update habit' })
+  async updateHabit(
+    @CurrentUser() user: UserInfoType,
+    @Body() updateHabitPayload: UpdateHabitPayload,
+    @Param('id', ParseIntPipe) habitId: number,
+  ): Promise<void> {
+    const userId = user.id;
+    return this.habitService.updateHabit(userId, habitId, updateHabitPayload);
   }
 
   @Delete('/:id')
@@ -88,16 +99,5 @@ export class HabitController {
   })
   async deleteHabit(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.habitService.deleteHabit(id);
-  }
-
-  @Patch('/:id')
-  @ApiOperation({ summary: 'update habit' })
-  async updateHabit(
-    @CurrentUser() user: UserInfoType,
-    @Body() updateHabitPayload: UpdateHabitPayload,
-    @Param('id', ParseIntPipe) habitId: number,
-  ): Promise<void> {
-    const userId = user.id;
-    return this.habitService.updateHabit(userId, habitId, updateHabitPayload);
   }
 }
