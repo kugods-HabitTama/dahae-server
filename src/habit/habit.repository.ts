@@ -1,3 +1,5 @@
+import { convertDayBitToString } from './../utils/date';
+import { HabitData } from './type/habit.data.type';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/services/prisma.service';
 import { Habit, HabitRecord, HabitRecordDay } from '@prisma/client';
@@ -41,8 +43,8 @@ export class HabitRepository {
     });
   }
 
-  async getHabits(userId: string): Promise<Habit[]> {
-    return this.prisma.habit.findMany({
+  async getHabits(userId: string): Promise<HabitData[]> {
+    const habits = await this.prisma.habit.findMany({
       where: {
         userId,
         isActive: true,
@@ -51,6 +53,8 @@ export class HabitRepository {
         },
       },
     });
+
+    return habits.map((habit) => this.toHabitData(habit));
   }
 
   async getHabitRecords(
@@ -77,12 +81,14 @@ export class HabitRepository {
     });
   }
 
-  async getHabit(habitId: number): Promise<Habit> {
-    return this.prisma.habit.findUnique({
+  async getHabit(habitId: number): Promise<HabitData> {
+    const habit = await this.prisma.habit.findUnique({
       where: {
         id: habitId,
       },
     });
+
+    return this.toHabitData(habit);
   }
 
   async changeProgress(payload: ChangeProgressPayload): Promise<HabitRecord> {
@@ -130,8 +136,8 @@ export class HabitRepository {
     }
   }
 
-  delete(id: number): Promise<Habit> {
-    return this.prisma.habit.update({
+  async delete(id: number): Promise<HabitData> {
+    const habit = await this.prisma.habit.update({
       where: {
         id,
       },
@@ -139,13 +145,15 @@ export class HabitRepository {
         isActive: false,
       },
     });
+
+    return this.toHabitData(habit);
   }
 
   async update(
     userId: string,
     habitId: number,
     payload: UpdateHabitPayload,
-  ): Promise<Habit> {
+  ): Promise<HabitData> {
     const { title, action, unit, value, time, startDate, endDate, days } =
       payload;
 
@@ -189,7 +197,7 @@ export class HabitRepository {
         habitTime.setUTCHours(+hh, +mm, 0, 0);
       }
 
-      return this.prisma.habit.create({
+      const createdHabit = await this.prisma.habit.create({
         data: {
           userId,
           title: title || habit.title,
@@ -202,9 +210,11 @@ export class HabitRepository {
           days: newDays,
         },
       });
+
+      return this.toHabitData(createdHabit);
     } else {
       //기존 habit 업데이트
-      return this.prisma.habit.update({
+      const updatedHabit = await this.prisma.habit.update({
         where: {
           id: habitId,
         },
@@ -214,6 +224,23 @@ export class HabitRepository {
           days: newDays,
         },
       });
+
+      return this.toHabitData(updatedHabit);
     }
+  }
+
+  private toHabitData(habit: Habit): HabitData {
+    return {
+      id: habit.id,
+      title: habit.title,
+      action: habit.action,
+      unit: habit.unit,
+      value: habit.value,
+      time: habit.time,
+      startDate: habit.startDate,
+      endDate: habit.endDate,
+      days: convertDayBitToString(habit.days),
+      isActive: habit.isActive,
+    };
   }
 }

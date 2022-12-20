@@ -1,10 +1,11 @@
+import { HabitData } from './type/habit.data.type';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { HabitRepository } from './habit.repository';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitDto, HabitListDto } from './dto/habit.dto';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { HabitRecordDto, HabitRecordListDto } from './dto/habit.record.dto';
-import { convertDayBitToString, getDayStringFromDate } from 'src/utils/date';
+import { getDayStringFromDate } from 'src/utils/date';
 import { HabitRecordDay } from '@prisma/client';
 import { UpdateHabitPayload } from './payload/update.habit.payload';
 
@@ -20,7 +21,7 @@ export class HabitService {
   }
 
   async getHabitList(userId: string): Promise<HabitListDto> {
-    const habits = await this.habitRepository.getHabits(userId);
+    const habits: HabitData[] = await this.habitRepository.getHabits(userId);
 
     const getHabitDtos = habits.map((habit) => {
       return HabitDto.of(habit);
@@ -63,12 +64,13 @@ export class HabitService {
   }
 
   async changeProgress(payload: ChangeProgressPayload): Promise<void> {
-    const habit = await this.habitRepository.getHabit(payload.habitId);
-    const habitDays = convertDayBitToString(habit.days);
+    const habit: HabitData = await this.habitRepository.getHabit(
+      payload.habitId,
+    );
 
     const requestedDay = getDayStringFromDate(new Date(payload.date));
 
-    if (!habitDays.includes(requestedDay))
+    if (!habit.days.includes(requestedDay))
       throw new BadRequestException('inappropriate date request');
 
     await this.habitRepository.changeProgress(payload);
@@ -83,10 +85,10 @@ export class HabitService {
     habitId: number,
     payload: UpdateHabitPayload,
   ): Promise<void> {
-    this.habitRepository.update(userId, habitId, payload);
+    await this.habitRepository.update(userId, habitId, payload);
   }
 
-  getUnprogressedHabits(
+  private getUnprogressedHabits(
     habits: HabitDto[],
     day: HabitRecordDay,
     progressedHabitIds: number[],
