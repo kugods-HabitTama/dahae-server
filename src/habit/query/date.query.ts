@@ -1,8 +1,7 @@
-import { IsDateString, IsDefined } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { IsDateString } from 'class-validator';
 
-export class GetHabitRecordPayload {
-  @IsDefined()
+export class DateQuery {
   @IsDateString({ strict: true })
   @ApiProperty({
     type: String,

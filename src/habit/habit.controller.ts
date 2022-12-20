@@ -1,10 +1,10 @@
+import { DateQuery } from './query/date.query';
 import { DefaultUserInterceptor } from '../common/interceptor/default.user.interceptor';
 import {
   Body,
   Controller,
   Get,
   Post,
-  Req,
   Query,
   Put,
   Delete,
@@ -24,7 +24,6 @@ import { CreateHabitPayload } from './payload/create.habit.payload';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { UserInfoType } from 'src/user/types/userInfo.type';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
-import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
 import { GetHabitListDto } from './dto/get.habit.list.dto';
 import { GetHabitRecordListDto } from './dto/get.habit.record.list.dto';
 import { UpdateHabitPayload } from './payload/update.habit.payload';
@@ -64,9 +63,9 @@ export class HabitController {
   })
   async getHabitRecords(
     @CurrentUser() user: UserInfoType,
-    @Query() query: GetHabitRecordPayload,
+    @Query() query: DateQuery,
   ): Promise<GetHabitRecordListDto> {
-    return this.habitService.getHabitRecords(user.id, query);
+    return this.habitService.getHabitRecords(user.id, query.date);
   }
 
   @Put('/')
