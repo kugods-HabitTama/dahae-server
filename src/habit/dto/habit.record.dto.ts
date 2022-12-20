@@ -1,7 +1,6 @@
+import { HabitWithRecordData } from './../type/habit.with.records.type';
 import { ApiProperty } from '@nestjs/swagger';
-import { HabitRecordDay } from '@prisma/client';
 import { convertHabitTimeToString } from 'src/utils/date';
-import { HabitWithRecordsT } from '../type/habit.with.records.type';
 import { HabitDto } from './habit.dto';
 
 export class HabitRecordDto {
@@ -20,7 +19,8 @@ export class HabitRecordDto {
   })
   accomplished!: boolean;
 
-  static of(habit: HabitWithRecordsT): HabitRecordDto {
+  static of(habitRecord: HabitWithRecordData): HabitRecordDto {
+    const habit = habitRecord.habit;
     return {
       habit: {
         id: habit.id,
@@ -31,28 +31,10 @@ export class HabitRecordDto {
         startDate: habit.startDate,
         endDate: habit.endDate,
         time: convertHabitTimeToString(habit.time),
-        days: [habit.habitRecords[0].day],
+        days: habit.days,
       },
-      progress: habit.habitRecords[0].progress,
-      accomplished: habit.habitRecords[0].accomplished,
-    };
-  }
-
-  static ofHabit(habit: HabitDto, day: HabitRecordDay): HabitRecordDto {
-    return {
-      habit: {
-        id: habit.id,
-        title: habit.title,
-        action: habit.action,
-        value: habit.value,
-        unit: habit.unit,
-        startDate: habit.startDate,
-        endDate: habit.endDate,
-        time: habit.time,
-        days: [day],
-      },
-      progress: 0,
-      accomplished: false,
+      progress: habitRecord.progress,
+      accomplished: habitRecord.accomplished,
     };
   }
 }
@@ -60,4 +42,12 @@ export class HabitRecordDto {
 export class HabitRecordListDto {
   @ApiProperty({ type: [HabitRecordDto] })
   habitRecords: HabitRecordDto[];
+
+  static of(habitRecords: HabitWithRecordData[]): HabitRecordListDto {
+    return {
+      habitRecords: habitRecords.map((habitRecord) =>
+        HabitRecordDto.of(habitRecord),
+      ),
+    };
+  }
 }

@@ -64,4 +64,10 @@ export class HabitDto {
 export class HabitListDto {
   @ApiProperty({ type: [HabitDto] })
   habits: HabitDto[];
+
+  static of(habits: HabitData[]): HabitListDto {
+    return {
+      habits: habits.map((habit) => HabitDto.of(habit)),
+    };
+  }
 }

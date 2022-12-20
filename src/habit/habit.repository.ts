@@ -6,7 +6,7 @@ import { Habit, HabitRecord, HabitRecordDay } from '@prisma/client';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitRecordDayConst } from './const/habitRecordDay.const';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
-import { HabitWithRecordsT } from './type/habit.with.records.type';
+import { HabitWithRecordData } from './type/habit.with.records.type';
 import { UpdateHabitPayload } from './payload/update.habit.payload';
 
 @Injectable()
@@ -60,25 +60,28 @@ export class HabitRepository {
   async getHabitRecords(
     userId: string,
     date: Date,
-  ): Promise<HabitWithRecordsT[]> {
-    return this.prisma.habit.findMany({
+  ): Promise<HabitWithRecordData[]> {
+    const habitRecords = await this.prisma.habitRecord.findMany({
       where: {
-        userId,
-        user: {
-          deletedAt: null,
+        habit: {
+          userId,
+          isActive: true,
         },
-        habitRecords: {
-          some: {
-            date,
-          },
-        },
+        date,
       },
       include: {
-        habitRecords: {
-          where: { date },
-        },
+        habit: true,
       },
     });
+
+    return habitRecords.map((habitRecord) => ({
+      id: habitRecord.id,
+      progress: habitRecord.progress,
+      date: habitRecord.date,
+      accomplished: habitRecord.accomplished,
+      day: habitRecord.day,
+      habit: this.toHabitData(habitRecord.habit),
+    }));
   }
 
   async getHabit(habitId: number): Promise<HabitData> {
