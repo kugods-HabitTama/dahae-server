@@ -35,4 +35,19 @@ export class UserService {
       marketingAgreement: user.marketingAgreement,
     };
   }
+
+  async getDefaultUser(): Promise<UserInfoType> {
+    const user = await this.userRepository.getDefaultUser();
+    return {
+      id: user.id,
+      createdAt: user.createdAt,
+      email: user.email,
+      name: user.name,
+      role: user.role,
+      photo: user.photo,
+      os: user.os,
+      streak: user.streak,
+      marketingAgreement: user.marketingAgreement,
+    };
+  }
 }

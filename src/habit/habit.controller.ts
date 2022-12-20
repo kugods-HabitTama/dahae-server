@@ -1,27 +1,26 @@
+import { DefaultUserInterceptor } from '../common/interceptor/default.user.interceptor';
 import {
   Body,
   Controller,
   Get,
   Post,
   Req,
-  UseGuards,
   Query,
   Put,
   Delete,
   Param,
   Patch,
   ParseIntPipe,
+  UseInterceptors,
 } from '@nestjs/common';
 import { HabitService } from './habit.service';
 import {
-  ApiBearerAuth,
   ApiCreatedResponse,
   ApiOperation,
   ApiTags,
   ApiParam,
 } from '@nestjs/swagger';
 import { CreateHabitPayload } from './payload/create.habit.payload';
-import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { CurrentUser } from 'src/auth/decorator/user.decorator';
 import { UserInfoType } from 'src/user/types/userInfo.type';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
@@ -35,22 +34,18 @@ import { UpdateHabitPayload } from './payload/update.habit.payload';
 export class HabitController {
   constructor(private readonly habitService: HabitService) {}
 
-  @ApiBearerAuth()
   @Post('/')
-  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(DefaultUserInterceptor)
   @ApiOperation({ summary: 'create habit' })
   async createHabit(
-    @Req() req,
-    @Body()
-    createHabitPayload: CreateHabitPayload,
+    @CurrentUser() user: UserInfoType,
+    @Body() createHabitPayload: CreateHabitPayload,
   ): Promise<void> {
-    const { id } = req.user;
-    return this.habitService.createHabit(id, createHabitPayload);
+    return this.habitService.createHabit(user.id, createHabitPayload);
   }
 
-  @ApiBearerAuth()
   @Get('/')
-  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(DefaultUserInterceptor)
   @ApiOperation({ summary: 'get habit list' })
   @ApiCreatedResponse({
     type: GetHabitListDto,
@@ -58,13 +53,11 @@ export class HabitController {
   async getHabitList(
     @CurrentUser() user: UserInfoType,
   ): Promise<GetHabitListDto> {
-    const { id } = user;
-    return this.habitService.getHabitList(id);
+    return this.habitService.getHabitList(user.id);
   }
 
-  @ApiBearerAuth()
   @Get('/record')
-  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(DefaultUserInterceptor)
   @ApiOperation({ summary: 'get habit records' })
   @ApiCreatedResponse({
     type: GetHabitRecordListDto,
@@ -73,13 +66,10 @@ export class HabitController {
     @CurrentUser() user: UserInfoType,
     @Query() query: GetHabitRecordPayload,
   ): Promise<GetHabitRecordListDto> {
-    const { id } = user;
-    return this.habitService.getHabitRecords(id, query);
+    return this.habitService.getHabitRecords(user.id, query);
   }
 
-  @ApiBearerAuth()
   @Put('/')
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'change habit progress' })
   async changeProgress(
     @Body() changeProgressPayload: ChangeProgressPayload,
@@ -87,9 +77,19 @@ export class HabitController {
     return this.habitService.changeProgress(changeProgressPayload);
   }
 
-  @ApiBearerAuth()
+  @Patch('/:id')
+  @UseInterceptors(DefaultUserInterceptor)
+  @ApiOperation({ summary: 'update habit' })
+  async updateHabit(
+    @CurrentUser() user: UserInfoType,
+    @Body() updateHabitPayload: UpdateHabitPayload,
+    @Param('id', ParseIntPipe) habitId: number,
+  ): Promise<void> {
+    const userId = user.id;
+    return this.habitService.updateHabit(userId, habitId, updateHabitPayload);
+  }
+
   @Delete('/:id')
-  @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'delete habit' })
   @ApiParam({
     name: 'id',
@@ -99,19 +99,5 @@ export class HabitController {
   })
   async deleteHabit(@Param('id', ParseIntPipe) id: number): Promise<void> {
     return this.habitService.deleteHabit(id);
-  }
-
-  @ApiBearerAuth()
-  @Patch('/:id')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'update habit' })
-  async updateHabit(
-    @CurrentUser() user: UserInfoType,
-    @Body()
-    updateHabitPayload: UpdateHabitPayload,
-    @Param('id', ParseIntPipe) habitId: number,
-  ): Promise<void> {
-    const userId = user.id;
-    return this.habitService.updateHabit(userId, habitId, updateHabitPayload);
   }
 }
