@@ -9,13 +9,13 @@ export class GetHabitRecordDto extends GetHabitDto {
     type: Number,
     description: '진행도',
   })
-  progress: number;
+  progress!: number;
 
   @ApiProperty({
     type: Boolean,
     description: '달성여부',
   })
-  accomplished: boolean;
+  accomplished!: boolean;
 
   static of(habit: HabitWithRecordsT): GetHabitRecordDto {
     return {

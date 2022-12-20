@@ -1,9 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDefined, IsNotEmpty, IsDateString } from 'class-validator';
+import { IsDefined, IsDateString } from 'class-validator';
 
 export class ChangeProgressPayload {
   @IsDefined()
-  @IsNotEmpty()
   @ApiProperty({
     type: Number,
     description: '습관 id',
