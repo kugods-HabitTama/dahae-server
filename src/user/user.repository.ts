@@ -9,7 +9,7 @@ export class UserRepository {
   async create(createUserPayload: CreateUserPayload): Promise<User> {
     const { email, password, name, os } = createUserPayload;
 
-    return await this.prisma.user.create({
+    return this.prisma.user.create({
       data: {
         email,
         password,
@@ -34,7 +34,7 @@ export class UserRepository {
   }
 
   async getUserByEmail(email: string): Promise<User> {
-    return await this.prisma.user.findUnique({
+    return this.prisma.user.findUnique({
       where: {
         email,
       },
@@ -42,7 +42,7 @@ export class UserRepository {
   }
 
   async getUserByName(name: string): Promise<User> {
-    return await this.prisma.user.findFirst({
+    return this.prisma.user.findFirst({
       where: {
         name,
       },
@@ -50,11 +50,15 @@ export class UserRepository {
   }
 
   async getUserById(id: string): Promise<User> {
-    return await this.prisma.user.findFirst({
+    return this.prisma.user.findFirst({
       where: {
         id,
         deletedAt: null,
       },
     });
+  }
+
+  async getDefaultUser(): Promise<User> {
+    return this.prisma.user.findFirst({});
   }
 }
