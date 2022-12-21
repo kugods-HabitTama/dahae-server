@@ -1,4 +1,4 @@
-FROM node:16-alpine as builder
+FROM node:16-alpine3.16 as builder
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -15,7 +15,7 @@ RUN yarn prisma generate
 
 RUN yarn build && rm -rf node_modules && yarn install --production
 
-FROM node:16-alpine as runner
+FROM node:16-alpine3.16 as runner
 ENV TZ=Asia/Seoul
 RUN ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
