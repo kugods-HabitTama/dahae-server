@@ -1,11 +1,12 @@
+import { HabitWithRecordData } from './type/habit.with.records.type';
+import { HabitData } from './type/habit.data.type';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { HabitRepository } from './habit.repository';
 import { CreateHabitPayload } from './payload/create.habit.payload';
-import { HabitDto, HabitListDto } from './dto/habit.dto';
+import { HabitListDto } from './dto/habit.dto';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
-import { HabitRecordDto, HabitRecordListDto } from './dto/habit.record.dto';
-import { convertDayBitToString, getDayStringFromDate } from 'src/utils/date';
-import { HabitRecordDay } from '@prisma/client';
+import { HabitRecordListDto } from './dto/habit.record.dto';
+import { getDayStringFromDate } from 'src/utils/date';
 import { UpdateHabitPayload } from './payload/update.habit.payload';
 
 @Injectable()
@@ -20,55 +21,51 @@ export class HabitService {
   }
 
   async getHabitList(userId: string): Promise<HabitListDto> {
-    const habits = await this.habitRepository.getHabits(userId);
+    const habits: HabitData[] = await this.habitRepository.getHabits(userId);
 
-    const getHabitDtos = habits.map((habit) => {
-      return HabitDto.of(habit);
-    });
-
-    return { habits: getHabitDtos };
+    return HabitListDto.of(habits);
   }
 
   async getHabitRecords(
     userId: string,
-    date: string,
+    dateString: string,
   ): Promise<HabitRecordListDto> {
-    //진행된 habit record 구하기
-    const habitWithRecords = await this.habitRepository.getHabitRecords(
-      userId,
-      new Date(date),
-    );
+    const date = new Date(dateString);
+    const day = getDayStringFromDate(date);
 
-    const progressedHabitIds = [];
-    const progressedDtos = [];
+    // habit과 이미 진행된 habitRecord 정보를 조회
+    const habits: HabitData[] = await this.habitRepository.getHabits(userId);
+    const progressedRecordsData: HabitWithRecordData[] =
+      await this.habitRepository.getHabitRecords(userId, date);
 
-    habitWithRecords.forEach((habit) => {
-      progressedHabitIds.push(habit.id);
-      progressedDtos.push(HabitRecordDto.of(habit));
-    });
+    const habitRecords: HabitWithRecordData[] = habits
+      // 요일에 맞는 habit만 필터링
+      .filter((habit) => habit.days.includes(day))
+      .map(
+        (habit) =>
+          // habitRecord에 있는 habit이면 habitRecord를 반환하고 없으면 0과 관련한 값으로 채워서 리턴
+          progressedRecordsData.find(
+            (habitWithRecord) => habitWithRecord.id === habit.id,
+          ) ?? {
+            progress: 0,
+            accomplished: false,
+            day,
+            date,
+            habit,
+          },
+      );
 
-    //진행되지 않은 habit 구하기
-    const habits = (await this.getHabitList(userId)).habits;
-    const dayString = getDayStringFromDate(new Date(date));
-
-    const unprogrssedDtos = this.getUnprogressedHabits(
-      habits,
-      dayString,
-      progressedHabitIds,
-    );
-
-    return {
-      habitRecords: progressedDtos.concat(unprogrssedDtos),
-    };
+    return HabitRecordListDto.of(habitRecords);
   }
 
   async changeProgress(payload: ChangeProgressPayload): Promise<void> {
-    const habit = await this.habitRepository.getHabit(payload.habitId);
-    const habitDays = convertDayBitToString(habit.days);
+    const habit: HabitData = await this.habitRepository.getHabit(
+      payload.habitId,
+    );
 
     const requestedDay = getDayStringFromDate(new Date(payload.date));
 
-    if (!habitDays.includes(requestedDay))
+    if (!habit.days.includes(requestedDay))
       throw new BadRequestException('inappropriate date request');
 
     await this.habitRepository.changeProgress(payload);
@@ -83,22 +80,6 @@ export class HabitService {
     habitId: number,
     payload: UpdateHabitPayload,
   ): Promise<void> {
-    this.habitRepository.update(userId, habitId, payload);
-  }
-
-  getUnprogressedHabits(
-    habits: HabitDto[],
-    day: HabitRecordDay,
-    progressedHabitIds: number[],
-  ): HabitRecordDto[] {
-    const arr = [];
-
-    habits.forEach((habit) => {
-      if (!progressedHabitIds.includes(habit.id) && habit.days.includes(day)) {
-        arr.push(HabitRecordDto.ofHabit(habit, day));
-      }
-    });
-
-    return arr;
+    await this.habitRepository.update(userId, habitId, payload);
   }
 }
