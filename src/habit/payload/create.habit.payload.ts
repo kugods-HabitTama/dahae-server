@@ -10,7 +10,7 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HabitRecordDay } from '@prisma/client';
 import { IsAfter } from '../../common/validators/isAfterConstraint';
 
@@ -53,10 +53,11 @@ export class CreateHabitPayload {
 
   @IsOptional()
   @IsMilitaryTime()
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
     description: '수행 시간',
     example: '10:10',
+    nullable: true,
   })
   time?: string | null;
 
@@ -73,10 +74,11 @@ export class CreateHabitPayload {
   @IsOptional()
   @IsDateString({ strict: true })
   @IsAfter('startDate')
-  @ApiProperty({
+  @ApiPropertyOptional({
     type: String,
     description: '종료 날짜',
     example: '2022-12-11',
+    nullable: true,
   })
   endDate?: string | null;
 

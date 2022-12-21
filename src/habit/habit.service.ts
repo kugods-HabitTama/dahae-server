@@ -1,14 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { HabitRepository } from './habit.repository';
 import { CreateHabitPayload } from './payload/create.habit.payload';
-import { GetHabitDto } from './dto/get.habit.dto';
+import { HabitDto, HabitListDto } from './dto/habit.dto';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
-import { GetHabitRecordPayload } from './payload/get.habit.record.payload';
-import { GetHabitRecordDto } from './dto/get.habit.record.dto';
+import { HabitRecordDto, HabitRecordListDto } from './dto/habit.record.dto';
 import { convertDayBitToString, getDayStringFromDate } from 'src/utils/date';
 import { HabitRecordDay } from '@prisma/client';
-import { GetHabitListDto } from './dto/get.habit.list.dto';
-import { GetHabitRecordListDto } from './dto/get.habit.record.list.dto';
 import { UpdateHabitPayload } from './payload/update.habit.payload';
 
 @Injectable()
@@ -22,11 +19,11 @@ export class HabitService {
     await this.habitRepository.create(userId, payload);
   }
 
-  async getHabitList(userId: string): Promise<GetHabitListDto> {
+  async getHabitList(userId: string): Promise<HabitListDto> {
     const habits = await this.habitRepository.getHabits(userId);
 
     const getHabitDtos = habits.map((habit) => {
-      return GetHabitDto.of(habit);
+      return HabitDto.of(habit);
     });
 
     return { habits: getHabitDtos };
@@ -34,10 +31,8 @@ export class HabitService {
 
   async getHabitRecords(
     userId: string,
-    payload: GetHabitRecordPayload,
-  ): Promise<GetHabitRecordListDto> {
-    const { date } = payload;
-
+    date: string,
+  ): Promise<HabitRecordListDto> {
     //진행된 habit record 구하기
     const habitWithRecords = await this.habitRepository.getHabitRecords(
       userId,
@@ -49,7 +44,7 @@ export class HabitService {
 
     habitWithRecords.forEach((habit) => {
       progressedHabitIds.push(habit.id);
-      progressedDtos.push(GetHabitRecordDto.of(habit));
+      progressedDtos.push(HabitRecordDto.of(habit));
     });
 
     //진행되지 않은 habit 구하기
@@ -92,15 +87,15 @@ export class HabitService {
   }
 
   getUnprogressedHabits(
-    habits: GetHabitDto[],
+    habits: HabitDto[],
     day: HabitRecordDay,
     progressedHabitIds: number[],
-  ): GetHabitRecordDto[] {
+  ): HabitRecordDto[] {
     const arr = [];
 
     habits.forEach((habit) => {
       if (!progressedHabitIds.includes(habit.id) && habit.days.includes(day)) {
-        arr.push(GetHabitRecordDto.ofHabit(habit, day));
+        arr.push(HabitRecordDto.ofHabit(habit, day));
       }
     });
 

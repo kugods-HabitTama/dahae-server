@@ -1,11 +1,11 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Habit, HabitRecordDay } from '@prisma/client';
 import {
   convertHabitTimeToString,
   convertDayBitToString,
 } from 'src/utils/date';
 
-export class GetHabitDto {
+export class HabitDto {
   @ApiProperty({ type: Number, description: '습관 Id' })
   id!: number;
 
@@ -21,18 +21,24 @@ export class GetHabitDto {
   @ApiProperty({ description: '단위', type: String })
   unit!: string;
 
-  @ApiProperty({ type: Number, description: '수행 시간', example: '10:10' })
+  @ApiProperty({
+    type: Number,
+    description: '수행 시간',
+    example: '10:10',
+    nullable: true,
+  })
   time!: string | null;
 
   @ApiProperty({ type: Date, description: '시작 날짜', example: '2022-12-11' })
   startDate!: Date;
 
-  @ApiPropertyOptional({
+  @ApiProperty({
     type: Date,
     description: '종료 날짜',
     example: '2022-12-11',
+    nullable: true,
   })
-  endDate!: Date;
+  endDate!: Date | null;
 
   @ApiProperty({
     description: '수행 요일',
@@ -42,7 +48,7 @@ export class GetHabitDto {
   })
   days!: HabitRecordDay[];
 
-  static of(habit: Habit): GetHabitDto {
+  static of(habit: Habit): HabitDto {
     return {
       id: habit.id,
       title: habit.title,
@@ -55,4 +61,9 @@ export class GetHabitDto {
       days: convertDayBitToString(habit.days),
     };
   }
+}
+
+export class HabitListDto {
+  @ApiProperty({ type: [HabitDto] })
+  habits: HabitDto[];
 }
