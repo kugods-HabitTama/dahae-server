@@ -8,6 +8,7 @@ import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { HabitRecordListDto } from './dto/habit.record.dto';
 import { getDayStringFromDate } from 'src/utils/date';
 import { UpdateHabitPayload } from './payload/update.habit.payload';
+import { HabitRecordDay } from '@prisma/client';
 
 @Injectable()
 export class HabitService {
@@ -63,12 +64,13 @@ export class HabitService {
       payload.habitId,
     );
 
-    const requestedDay = getDayStringFromDate(new Date(payload.date));
+    const day = this.getDay(new Date(payload.date));
 
-    if (!habit.days.includes(requestedDay))
+    if (!habit.days.includes(day)) {
       throw new BadRequestException('inappropriate date request');
+    }
 
-    await this.habitRepository.changeProgress(payload);
+    await this.habitRepository.changeProgress(payload, day);
   }
 
   async deleteHabit(id: number): Promise<void> {
@@ -81,5 +83,19 @@ export class HabitService {
     payload: UpdateHabitPayload,
   ): Promise<void> {
     await this.habitRepository.update(userId, habitId, payload);
+  }
+
+  private getDay(date: Date): HabitRecordDay {
+    const dayArr: HabitRecordDay[] = [
+      'Sun',
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri',
+      'Sat',
+    ];
+
+    return dayArr[date.getDay()];
   }
 }

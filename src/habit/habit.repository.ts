@@ -99,49 +99,31 @@ export class HabitRepository {
     return this.toHabitData(habit);
   }
 
-  async changeProgress(payload: ChangeProgressPayload): Promise<HabitRecord> {
-    const { habitId, date, progress } = payload;
-    const habit = await this.prisma.habit.findUnique({
+  async changeProgress(
+    payload: ChangeProgressPayload,
+    day: HabitRecordDay,
+  ): Promise<void> {
+    const { habitId, date: dateString, progress } = payload;
+
+    const date = new Date(dateString);
+
+    await this.prisma.habitRecord.upsert({
       where: {
-        id: habitId,
-      },
-      include: {
-        habitRecords: {
-          where: { date: new Date(date) },
+        habitId_date: {
+          habitId,
+          date,
         },
+      },
+      create: {
+        habitId,
+        date,
+        progress,
+        day,
+      },
+      update: {
+        progress,
       },
     });
-
-    const habitRecords = habit.habitRecords;
-
-    if (habitRecords.length > 0) {
-      //record가 존재할 경우 기존 record의 progress 변경
-      const record = habitRecords[0];
-
-      return this.prisma.habitRecord.update({
-        where: {
-          id: record.id,
-        },
-        data: {
-          progress,
-        },
-      });
-    } else {
-      //record가 존재하지 않을 경우 record 생성
-      const recordDate = new Date(date);
-      const dayIdx = recordDate.getDay();
-
-      const dayArr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-
-      return this.prisma.habitRecord.create({
-        data: {
-          habitId,
-          progress,
-          date: new Date(date),
-          day: dayArr[dayIdx] as HabitRecordDay,
-        },
-      });
-    }
   }
 
   async delete(id: number): Promise<HabitData> {
