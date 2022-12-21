@@ -13,7 +13,10 @@ import { UpdateHabitPayload } from './payload/update.habit.payload';
 export class HabitRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  create(userId: string, payload: CreateHabitPayload): Promise<Habit> {
+  async create(
+    userId: string,
+    payload: CreateHabitPayload,
+  ): Promise<HabitData> {
     const { title, action, unit, value, time, startDate, endDate, days } =
       payload;
 
@@ -28,7 +31,7 @@ export class HabitRepository {
       habitTime.setUTCHours(+hh, +mm, 0, 0);
     }
 
-    return this.prisma.habit.create({
+    const habit = await this.prisma.habit.create({
       data: {
         userId,
         title,
@@ -41,6 +44,8 @@ export class HabitRepository {
         days: dayBit,
       },
     });
+
+    return this.toHabitData(habit);
   }
 
   async getHabits(userId: string): Promise<HabitData[]> {
