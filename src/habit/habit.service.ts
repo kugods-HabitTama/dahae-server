@@ -1,6 +1,10 @@
 import { HabitWithRecordData } from './type/habit.with.records.type';
 import { HabitData } from './type/habit.data.type';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { HabitRepository } from './habit.repository';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitListDto } from './dto/habit.dto';
@@ -64,10 +68,10 @@ export class HabitService {
       payload.habitId,
     );
 
-    const day = this.getDay(new Date(payload.date));
+    const day = this.getDay(payload.date);
 
     if (!habit.days.includes(day)) {
-      throw new BadRequestException('inappropriate date request');
+      throw new ConflictException('inappropriate date request');
     }
 
     await this.habitRepository.changeProgress(payload, day);

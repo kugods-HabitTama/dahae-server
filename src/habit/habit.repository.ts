@@ -1,6 +1,10 @@
 import { convertDayBitToString } from './../utils/date';
 import { HabitData } from './type/habit.data.type';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  Injectable,
+} from '@nestjs/common';
 import { PrismaService } from '../common/services/prisma.service';
 import { Habit, HabitRecord, HabitRecordDay } from '@prisma/client';
 import { CreateHabitPayload } from './payload/create.habit.payload';
@@ -39,8 +43,8 @@ export class HabitRepository {
         unit,
         value,
         time: habitTime,
-        startDate: new Date(startDate),
-        endDate: endDate ? new Date(endDate) : null,
+        startDate,
+        endDate,
         days: dayBit,
       },
     });
@@ -103,9 +107,7 @@ export class HabitRepository {
     payload: ChangeProgressPayload,
     day: HabitRecordDay,
   ): Promise<void> {
-    const { habitId, date: dateString, progress } = payload;
-
-    const date = new Date(dateString);
+    const { habitId, date, progress } = payload;
 
     await this.prisma.habitRecord.upsert({
       where: {
@@ -154,26 +156,21 @@ export class HabitRepository {
     });
 
     //날짜 검증
-    if (startDate && endDate) {
-      if (startDate > endDate) throw new BadRequestException('invalid date');
-    } else if (startDate) {
-      if (new Date(startDate) > habit.endDate)
-        throw new BadRequestException('invalid startDate');
-    } else if (endDate) {
-      if (habit.startDate > new Date(endDate))
-        throw new BadRequestException('invalid endDate');
+    if (startDate && endDate === undefined && startDate > habit.endDate) {
+      throw new ConflictException('등록된 endDate보다 이전 날짜가 아닙니다.');
+    }
+
+    if (endDate && !startDate && habit.startDate > endDate) {
+      throw new ConflictException('등록된 startDate보다 이후 날짜가 아닙니다.');
     }
 
     const dayBit = days
       ? days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0)
       : undefined;
 
-    const newStartDate = startDate ? new Date(startDate) : habit.startDate;
-    const newEndDate = endDate
-      ? new Date(endDate)
-      : endDate === null
-      ? null
-      : habit.endDate;
+    const newStartDate = startDate ?? habit.startDate;
+    const newEndDate = endDate === undefined ? habit.endDate : endDate;
+
     const newDays = dayBit || habit.days;
 
     if (title || action || unit || value || time || time === null) {
