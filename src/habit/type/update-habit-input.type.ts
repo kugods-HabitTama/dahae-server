@@ -10,8 +10,3 @@ export type UpdateHabitInput = {
   endDate?: Date | null;
   days?: HabitRecordDay[];
 };
-
-export interface A {
-  a?: string | null;
-  b: number;
-}
