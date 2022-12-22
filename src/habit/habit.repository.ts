@@ -1,5 +1,3 @@
-import { A, UpdateHabitInput } from './type/update-habit-input.type';
-import { HabitData } from './type/habit.data.type';
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/services/prisma.service';
 import { Habit, HabitRecordDay, Prisma } from '@prisma/client';
@@ -7,6 +5,8 @@ import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitRecordDayConst } from './const/habitRecordDay.const';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { HabitWithRecordData } from './type/habit.with.records.type';
+import { HabitData } from './type/habit.data.type';
+import { UpdateHabitInput } from './type/update-habit-input.type';
 
 @Injectable()
 export class HabitRepository {
