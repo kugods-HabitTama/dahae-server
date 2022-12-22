@@ -14,6 +14,7 @@ async function bootstrap() {
       forbidNonWhitelisted: true,
       forbidUnknownValues: true,
       skipUndefinedProperties: true,
+      stopAtFirstError: true,
     }),
   );
 
