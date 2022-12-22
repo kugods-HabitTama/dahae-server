@@ -19,17 +19,6 @@ export class HabitRepository {
     const { title, action, unit, value, time, startDate, endDate, days } =
       payload;
 
-    // 요일을 bit 합으로 변환
-    const dayBit = days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0);
-
-    // time 을 Date 타입으로 변환
-    let habitTime = null;
-    if (time) {
-      const [hh, mm] = time.split(':');
-      habitTime = new Date();
-      habitTime.setUTCHours(+hh, +mm, 0, 0);
-    }
-
     const habit = await this.prisma.habit.create({
       data: {
         userId,
@@ -37,10 +26,10 @@ export class HabitRepository {
         action,
         unit,
         value,
-        time: habitTime,
+        time: time ? this.convertHabitTimeToDate(time) : null,
         startDate,
         endDate,
-        days: dayBit,
+        days: this.convertDayStringToBit(days),
       },
     });
 
