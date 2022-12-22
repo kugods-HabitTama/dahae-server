@@ -1,17 +1,12 @@
-import { convertDayBitToString } from './../utils/date';
+import { A, UpdateHabitInput } from './type/update-habit-input.type';
 import { HabitData } from './type/habit.data.type';
-import {
-  BadRequestException,
-  ConflictException,
-  Injectable,
-} from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/services/prisma.service';
-import { Habit, HabitRecord, HabitRecordDay } from '@prisma/client';
+import { Habit, HabitRecordDay, Prisma } from '@prisma/client';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitRecordDayConst } from './const/habitRecordDay.const';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { HabitWithRecordData } from './type/habit.with.records.type';
-import { UpdateHabitPayload } from './payload/update.habit.payload';
 
 @Injectable()
 export class HabitRepository {
@@ -144,61 +139,41 @@ export class HabitRepository {
   async update(
     userId: string,
     habitId: number,
-    payload: UpdateHabitPayload,
+    data: UpdateHabitInput,
   ): Promise<HabitData> {
-    const { title, action, unit, value, time, startDate, endDate, days } =
-      payload;
+    const { title, action, unit, value, time, startDate, endDate, days } = data;
 
-    const habit = await this.prisma.habit.findUnique({
-      where: {
-        id: habitId,
-      },
-    });
+    const dayBit = data.days ? this.convertDayStringToBit(days) : undefined;
 
-    //날짜 검증
-    if (startDate && endDate === undefined && startDate > habit.endDate) {
-      throw new ConflictException('등록된 endDate보다 이전 날짜가 아닙니다.');
-    }
+    if (this.isUpdateNeedSoftDelete(data)) {
+      // 삭제 후 생성을 한 트랜잭션으로 처리합니다.
+      return this.prisma.$transaction(
+        async (tx: Prisma.TransactionClient): Promise<HabitData> => {
+          const habit: Habit = await tx.habit.delete({
+            where: {
+              id: habitId,
+            },
+          });
 
-    if (endDate && !startDate && habit.startDate > endDate) {
-      throw new ConflictException('등록된 startDate보다 이후 날짜가 아닙니다.');
-    }
+          const newTime = time ? this.convertHabitTimeToDate(time) : null;
 
-    const dayBit = days
-      ? days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0)
-      : undefined;
+          const createdHabit = await tx.habit.create({
+            data: {
+              userId,
+              title: title ?? habit.title,
+              action: action ?? habit.action,
+              unit: unit ?? habit.unit,
+              value: value ?? habit.value,
+              time: time === undefined ? habit.time : newTime,
+              startDate: startDate ?? habit.startDate,
+              endDate: endDate ?? habit.endDate,
+              days: dayBit ?? habit.days,
+            },
+          });
 
-    const newStartDate = startDate ?? habit.startDate;
-    const newEndDate = endDate === undefined ? habit.endDate : endDate;
-
-    const newDays = dayBit || habit.days;
-
-    if (title || action || unit || value || time || time === null) {
-      //soft delete 후 새로운 habit 생성
-      await this.delete(habitId);
-
-      let habitTime = null;
-      if (time) {
-        const [hh, mm] = time.split(':');
-        habitTime = new Date();
-        habitTime.setUTCHours(+hh, +mm, 0, 0);
-      }
-
-      const createdHabit = await this.prisma.habit.create({
-        data: {
-          userId,
-          title: title || habit.title,
-          action: action || habit.action,
-          unit: unit || habit.unit,
-          value: value || habit.value,
-          time: time || time === null ? habitTime : habit.time,
-          startDate: newStartDate,
-          endDate: newEndDate,
-          days: newDays,
+          return this.toHabitData(createdHabit);
         },
-      });
-
-      return this.toHabitData(createdHabit);
+      );
     } else {
       //기존 habit 업데이트
       const updatedHabit = await this.prisma.habit.update({
@@ -206,9 +181,9 @@ export class HabitRepository {
           id: habitId,
         },
         data: {
-          startDate: newStartDate,
-          endDate: newEndDate,
-          days: newDays,
+          startDate,
+          endDate,
+          days: dayBit,
         },
       });
 
@@ -223,11 +198,55 @@ export class HabitRepository {
       action: habit.action,
       unit: habit.unit,
       value: habit.value,
-      time: habit.time,
+      time: this.convertHabitTimeToString(habit.time),
       startDate: habit.startDate,
       endDate: habit.endDate,
-      days: convertDayBitToString(habit.days),
+      days: this.convertDayBitToString(habit.days),
       isActive: habit.isActive,
     };
+  }
+
+  private convertDayBitToString(days: number): HabitRecordDay[] {
+    const dayArr = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+    const habitDayArr = [];
+
+    for (let i = 0; i < 7; i++) {
+      const dayBit = days >> i;
+
+      if (dayBit & 1) habitDayArr.push(dayArr[i]);
+    }
+
+    return habitDayArr;
+  }
+
+  private convertDayStringToBit(days: HabitRecordDay[]): number {
+    return days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0);
+  }
+
+  private convertHabitTimeToString(habitTime: Date): string {
+    const hh = habitTime.getUTCHours();
+    const mm = habitTime.getUTCMinutes();
+
+    const formattedString =
+      (hh >= 10 ? '' + hh : '0' + hh) + ':' + (mm >= 10 ? '' + mm : '0' + mm);
+
+    return formattedString;
+  }
+
+  private convertHabitTimeToDate(habitTime: string): Date {
+    const [hh, mm] = habitTime.split(':');
+    const habitDate = new Date();
+    habitDate.setUTCHours(+hh, +mm, 0, 0);
+
+    return habitDate;
+  }
+
+  private isUpdateNeedSoftDelete(data: UpdateHabitInput): boolean {
+    const { title, action, unit, value, time } = data;
+
+    if (title || action || unit || value || time !== undefined) return true;
+
+    return false;
   }
 }

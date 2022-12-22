@@ -1,7 +1,6 @@
 import { HabitData } from './../type/habit.data.type';
 import { ApiProperty } from '@nestjs/swagger';
 import { HabitRecordDay } from '@prisma/client';
-import { convertHabitTimeToString } from 'src/utils/date';
 
 export class HabitDto {
   @ApiProperty({ type: Number, description: '습관 Id' })
@@ -53,7 +52,7 @@ export class HabitDto {
       action: habit.action,
       value: habit.value,
       unit: habit.unit,
-      time: convertHabitTimeToString(habit.time),
+      time: habit.time,
       startDate: habit.startDate,
       endDate: habit.endDate,
       days: habit.days,
