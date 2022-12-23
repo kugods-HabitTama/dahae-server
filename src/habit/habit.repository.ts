@@ -26,7 +26,7 @@ export class HabitRepository {
         action,
         unit,
         value,
-        time: time ? this.convertHabitTimeToDate(time) : null,
+        time,
         startDate,
         endDate,
         days: this.convertDayStringToBit(days),
@@ -144,8 +144,6 @@ export class HabitRepository {
             },
           });
 
-          const newTime = time ? this.convertHabitTimeToDate(time) : null;
-
           const createdHabit = await tx.habit.create({
             data: {
               userId,
@@ -153,7 +151,7 @@ export class HabitRepository {
               action: action ?? habit.action,
               unit: unit ?? habit.unit,
               value: value ?? habit.value,
-              time: time === undefined ? habit.time : newTime,
+              time: time === undefined ? habit.time : time,
               startDate: startDate ?? habit.startDate,
               endDate: endDate ?? habit.endDate,
               days: dayBit ?? habit.days,
@@ -187,7 +185,7 @@ export class HabitRepository {
       action: habit.action,
       unit: habit.unit,
       value: habit.value,
-      time: this.convertHabitTimeToString(habit.time),
+      time: habit.time,
       startDate: habit.startDate,
       endDate: habit.endDate,
       days: this.convertDayBitToString(habit.days),
@@ -211,24 +209,6 @@ export class HabitRepository {
 
   private convertDayStringToBit(days: HabitRecordDay[]): number {
     return days.reduce((acc, cur) => acc + HabitRecordDayConst[cur], 0);
-  }
-
-  private convertHabitTimeToString(habitTime: Date): string {
-    const hh = habitTime.getUTCHours();
-    const mm = habitTime.getUTCMinutes();
-
-    const formattedString =
-      (hh >= 10 ? '' + hh : '0' + hh) + ':' + (mm >= 10 ? '' + mm : '0' + mm);
-
-    return formattedString;
-  }
-
-  private convertHabitTimeToDate(habitTime: string): Date {
-    const [hh, mm] = habitTime.split(':');
-    const habitDate = new Date();
-    habitDate.setUTCHours(+hh, +mm, 0, 0);
-
-    return habitDate;
   }
 
   private isUpdateNeedSoftDelete(data: UpdateHabitInput): boolean {
