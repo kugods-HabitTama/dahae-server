@@ -7,7 +7,6 @@ import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitListDto } from './dto/habit.dto';
 import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { HabitRecordListDto } from './dto/habit.record.dto';
-import { getDayStringFromDate } from 'src/utils/date';
 import { UpdateHabitPayload } from './payload/update.habit.payload';
 import { HabitRecordDay } from '@prisma/client';
 
@@ -33,7 +32,7 @@ export class HabitService {
     dateString: string,
   ): Promise<HabitRecordListDto> {
     const date = new Date(dateString);
-    const day = getDayStringFromDate(date);
+    const day = this.getDay(date);
 
     // habit과 이미 진행된 habitRecord 정보를 조회
     const habits: HabitData[] = await this.habitRepository.getHabits(userId);

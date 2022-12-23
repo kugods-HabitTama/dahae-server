@@ -1,5 +1,3 @@
-import { HabitRecordDay } from '@prisma/client';
-
 const KR_TIME_DIFF = 9 * 60 * 60 * 1000;
 
 /**
@@ -8,11 +6,4 @@ const KR_TIME_DIFF = 9 * 60 * 60 * 1000;
 export const formatToKSTDate = (date: Date) => {
   const utc = date.getTime() + date.getTimezoneOffset() * 60 * 1000;
   return new Date(utc + KR_TIME_DIFF);
-};
-
-export const getDayStringFromDate = (date: Date): HabitRecordDay => {
-  const dayArr = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const dayIdx = date.getDay();
-
-  return dayArr[dayIdx] as HabitRecordDay;
 };

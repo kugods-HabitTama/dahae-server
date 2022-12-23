@@ -58,7 +58,7 @@ model Habit {
   action       String
   value        Int
   unit         String
-  time         DateTime?     @db.Time
+  time         String?
   startDate    DateTime      @map("start_date") @db.Date
   endDate      DateTime?     @map("end_date") @db.Date
   days         Int
