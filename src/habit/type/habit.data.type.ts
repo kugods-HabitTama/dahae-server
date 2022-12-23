@@ -6,7 +6,7 @@ export type HabitData = {
   action: string;
   value: number;
   unit: string;
-  time: Date | null;
+  time: string | null;
   startDate: Date;
   endDate: Date | null;
   days: HabitRecordDay[];

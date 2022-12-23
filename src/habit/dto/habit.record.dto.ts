@@ -1,6 +1,5 @@
 import { HabitWithRecordData } from './../type/habit.with.records.type';
 import { ApiProperty } from '@nestjs/swagger';
-import { convertHabitTimeToString } from 'src/utils/date';
 import { HabitDto } from './habit.dto';
 
 export class HabitRecordDto {
@@ -30,7 +29,7 @@ export class HabitRecordDto {
         unit: habit.unit,
         startDate: habit.startDate,
         endDate: habit.endDate,
-        time: convertHabitTimeToString(habit.time),
+        time: habit.time,
         days: habit.days,
       },
       progress: habitRecord.progress,

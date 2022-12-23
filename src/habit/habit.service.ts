@@ -1,6 +1,7 @@
+import { UpdateHabitInput } from './type/update-habit-input.type';
 import { HabitWithRecordData } from './type/habit.with.records.type';
 import { HabitData } from './type/habit.data.type';
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
 import { HabitRepository } from './habit.repository';
 import { CreateHabitPayload } from './payload/create.habit.payload';
 import { HabitListDto } from './dto/habit.dto';
@@ -8,6 +9,7 @@ import { ChangeProgressPayload } from './payload/change.progress.payload';
 import { HabitRecordListDto } from './dto/habit.record.dto';
 import { getDayStringFromDate } from 'src/utils/date';
 import { UpdateHabitPayload } from './payload/update.habit.payload';
+import { HabitRecordDay } from '@prisma/client';
 
 @Injectable()
 export class HabitService {
@@ -63,12 +65,13 @@ export class HabitService {
       payload.habitId,
     );
 
-    const requestedDay = getDayStringFromDate(new Date(payload.date));
+    const day = this.getDay(payload.date);
 
-    if (!habit.days.includes(requestedDay))
-      throw new BadRequestException('inappropriate date request');
+    if (!habit.days.includes(day)) {
+      throw new ConflictException('inappropriate date request');
+    }
 
-    await this.habitRepository.changeProgress(payload);
+    await this.habitRepository.changeProgress(payload, day);
   }
 
   async deleteHabit(id: number): Promise<void> {
@@ -80,6 +83,40 @@ export class HabitService {
     habitId: number,
     payload: UpdateHabitPayload,
   ): Promise<void> {
-    await this.habitRepository.update(userId, habitId, payload);
+    const habit: HabitData = await this.habitRepository.getHabit(habitId);
+
+    // startDate와 endDate의 선후관계는 최상단의 비즈니스 로직이므로, 이를 검증하는 로직은 서비스에 위치
+    // InputType의 validation은 DTO에서 하고, 서비스에서는 DB에 저장된 데이터와 비교하는 로직을 작성
+    const newStartDate = payload.startDate ?? habit.startDate;
+    const newEndDate =
+      payload.endDate === undefined ? habit.endDate : payload.endDate;
+
+    if (newStartDate > newEndDate) {
+      throw new ConflictException(
+        '서버에 등록된 startDate, endDate와 선후관계가 맞지 않습니다.',
+      );
+    }
+
+    const updateInput: UpdateHabitInput = {
+      ...payload,
+      startDate: newStartDate,
+      endDate: newEndDate,
+    };
+
+    await this.habitRepository.update(userId, habitId, updateInput);
+  }
+
+  private getDay(date: Date): HabitRecordDay {
+    const dayArr: HabitRecordDay[] = [
+      'Sun',
+      'Mon',
+      'Tue',
+      'Wed',
+      'Thu',
+      'Fri',
+      'Sat',
+    ];
+
+    return dayArr[date.getDay()];
   }
 }

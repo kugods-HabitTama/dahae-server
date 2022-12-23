@@ -1,6 +1,6 @@
 import {
   ArrayNotEmpty,
-  IsDateString,
+  IsDate,
   IsDefined,
   IsEnum,
   IsInt,
@@ -13,6 +13,7 @@ import {
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { HabitRecordDay } from '@prisma/client';
 import { IsAfter } from '../../common/validators/isAfterConstraint';
+import { Transform } from 'class-transformer';
 
 export class CreateHabitPayload {
   @IsDefined()
@@ -61,26 +62,33 @@ export class CreateHabitPayload {
   })
   time?: string | null;
 
-  @IsDefined()
-  @IsDateString({ strict: true })
   @IsAfter()
+  @IsDate()
+  @IsDefined()
+  @Transform(({ value }) =>
+    new Date(value).toJSON() ? new Date(value) : 'Invalid Date',
+  )
   @ApiProperty({
     type: String,
     description: '시작 날짜',
     example: '2022-12-11',
   })
-  startDate!: string;
+  startDate!: Date;
 
-  @IsOptional()
-  @IsDateString({ strict: true })
   @IsAfter('startDate')
+  @IsDate()
+  @IsOptional()
+  @Transform(({ value }) => {
+    if (!value) return value;
+    return new Date(value).toJSON() ? new Date(value) : 'Invalid Date';
+  })
   @ApiPropertyOptional({
     type: String,
     description: '종료 날짜',
     example: '2022-12-11',
     nullable: true,
   })
-  endDate?: string | null;
+  endDate?: Date | null;
 
   @IsDefined()
   @ArrayNotEmpty()
