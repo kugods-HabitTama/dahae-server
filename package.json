@@ -23,7 +23,7 @@
     "db:init:local": "docker-compose --env-file .local.env -f postgres.yml up -d",
     "db:save:local": "dotenv -e .local.env -- yarn prisma migrate dev",
     "db:save:dev": "dotenv -e .dev.env -- yarn prisma migrate dev",
-    "deploy:dev": "NODE_ENV=dev node dist/main.js",
+    "deploy:dev": "NODE_ENV=dev node dist/src/main.js",
     "deploy:prod": "NODE_ENV=prod node dist/src/main.js"
   },
   "dependencies": {
