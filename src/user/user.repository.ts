@@ -33,6 +33,17 @@ export class UserRepository {
     return update;
   }
 
+  async updatePasswordById(id: string, password: string): Promise<User> {
+    return this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        password,
+      },
+    });
+  }
+
   async getUserByEmail(email: string): Promise<User> {
     return this.prisma.user.findUnique({
       where: {
