@@ -4,6 +4,7 @@ import { TestPayload } from './payload/test.payload';
 import { TestDto } from './dto/test.dto';
 import { TestType } from './types/test.type';
 import { UserInfoType } from './types/userInfo.type';
+import { UserProfileDto } from './dto/user.profile.dto';
 
 @Injectable()
 export class UserService {
@@ -49,5 +50,9 @@ export class UserService {
       streak: user.streak,
       marketingAgreement: user.marketingAgreement,
     };
+  }
+
+  async getUserProfile(userInfo: UserInfoType): Promise<UserProfileDto> {
+    return UserProfileDto.of(userInfo);
   }
 }
