@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -12,6 +12,7 @@ import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorator/user.decorator';
 import { UserInfoType } from './types/userInfo.type';
 import { UserProfileDto } from './dto/user.profile.dto';
+import { UpdatePasswordPayload } from './payload/update.password.payload';
 
 @ApiTags('User API')
 @Controller('users')
@@ -39,5 +40,16 @@ export class UserController {
   @ApiOkResponse({ type: UserProfileDto })
   async getProfile(@CurrentUser() user: UserInfoType): Promise<UserProfileDto> {
     return this.userService.getUserProfile(user);
+  }
+
+  @ApiBearerAuth()
+  @Put('password')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'update user password' })
+  async updatePassword(
+    @Body() payload: UpdatePasswordPayload,
+    @CurrentUser() user: UserInfoType,
+  ): Promise<void> {
+    return this.userService.updateUserPassword(user, payload);
   }
 }
