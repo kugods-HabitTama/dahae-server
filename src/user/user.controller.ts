@@ -1,4 +1,4 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -11,6 +11,7 @@ import { TestPayload } from './payload/test.payload';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorator/user.decorator';
 import { UserInfoType } from './types/userInfo.type';
+import { UserProfileDto } from './dto/user.profile.dto';
 
 @ApiTags('User API')
 @Controller('users')
@@ -29,5 +30,14 @@ export class UserController {
   ): Promise<TestDto> {
     console.log(user);
     return this.userService.test(payload);
+  }
+
+  @ApiBearerAuth()
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'get user profile ' })
+  @ApiOkResponse({ type: UserProfileDto })
+  async getProfile(@CurrentUser() user: UserInfoType): Promise<UserProfileDto> {
+    return this.userService.getUserProfile(user);
   }
 }
