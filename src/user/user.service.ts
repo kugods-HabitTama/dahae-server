@@ -7,6 +7,7 @@ import { UserInfoType } from './types/userInfo.type';
 import { UserProfileDto } from './dto/user.profile.dto';
 import { UpdatePasswordPayload } from './payload/update.password.payload';
 import * as bcrypt from 'bcryptjs';
+import { UpdateProfilePayload } from './payload/update.profile.payload';
 
 @Injectable()
 export class UserService {
@@ -77,5 +78,13 @@ export class UserService {
     const hashedPassword = await bcrypt.hash(targetPassword, 10);
 
     await this.userRepository.updatePasswordById(userInfo.id, hashedPassword);
+  }
+
+  async updateUserProfile(
+    userInfo: UserInfoType,
+    payload: UpdateProfilePayload,
+  ): Promise<void> {
+    const { id } = userInfo;
+    console.log(await this.userRepository.updateProfileById(id, payload));
   }
 }

@@ -13,6 +13,7 @@ import { CurrentUser } from '../auth/decorator/user.decorator';
 import { UserInfoType } from './types/userInfo.type';
 import { UserProfileDto } from './dto/user.profile.dto';
 import { UpdatePasswordPayload } from './payload/update.password.payload';
+import { UpdateProfilePayload } from './payload/update.profile.payload';
 
 @ApiTags('User API')
 @Controller('users')
@@ -51,5 +52,16 @@ export class UserController {
     @CurrentUser() user: UserInfoType,
   ): Promise<void> {
     return this.userService.updateUserPassword(user, payload);
+  }
+
+  @ApiBearerAuth()
+  @Put('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'update user profile' })
+  async updateProfile(
+    @Body() payload: UpdateProfilePayload,
+    @CurrentUser() user: UserInfoType,
+  ): Promise<void> {
+    return this.userService.updateUserProfile(user, payload);
   }
 }

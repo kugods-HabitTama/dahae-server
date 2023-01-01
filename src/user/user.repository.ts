@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../common/services/prisma.service';
 import { User } from '@prisma/client';
 import { CreateUserPayload } from 'src/auth/payload/create.user.payload';
+import { UpdateProfilePayload } from './payload/update.profile.payload';
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -40,6 +41,22 @@ export class UserRepository {
       },
       data: {
         password,
+      },
+    });
+  }
+
+  async updateProfileById(
+    id: string,
+    payload: UpdateProfilePayload,
+  ): Promise<User> {
+    const { name, photo } = payload;
+    return this.prisma.user.update({
+      where: {
+        id,
+      },
+      data: {
+        name,
+        photo,
       },
     });
   }
