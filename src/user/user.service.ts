@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { TestPayload } from './payload/test.payload';
 import { TestDto } from './dto/test.dto';
@@ -27,6 +31,9 @@ export class UserService {
 
   async getUserInfoById(userId: string): Promise<UserInfoType> {
     const user = await this.userRepository.getUserById(userId);
+
+    if (!user) throw new UnauthorizedException('unavailable user');
+
     return {
       id: user.id,
       createdAt: user.createdAt,
