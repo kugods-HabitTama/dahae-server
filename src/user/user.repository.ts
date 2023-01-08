@@ -3,6 +3,7 @@ import { PrismaService } from '../common/services/prisma.service';
 import { User } from '@prisma/client';
 import { CreateUserPayload } from 'src/auth/payload/create.user.payload';
 import { UpdateProfilePayload } from './payload/update.profile.payload';
+
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: PrismaService) {}
@@ -88,5 +89,19 @@ export class UserRepository {
 
   async getDefaultUser(): Promise<User> {
     return this.prisma.user.findFirst({});
+  }
+
+  async deleteUserById(id: string): Promise<User> {
+    return this.prisma.user.update({
+      where: { id },
+      data: {
+        deletedAt: new Date(),
+        email: '',
+        password: '',
+        name: '',
+        photo: '',
+        refreshToken: '',
+      },
+    });
   }
 }

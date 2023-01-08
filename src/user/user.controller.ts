@@ -1,4 +1,12 @@
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Post,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -51,7 +59,7 @@ export class UserController {
     @Body() payload: UpdatePasswordPayload,
     @CurrentUser() user: UserInfoType,
   ): Promise<void> {
-    return this.userService.updateUserPassword(user, payload);
+    return this.userService.updateUserPassword(user.id, payload);
   }
 
   @ApiBearerAuth()
@@ -62,6 +70,14 @@ export class UserController {
     @Body() payload: UpdateProfilePayload,
     @CurrentUser() user: UserInfoType,
   ): Promise<void> {
-    return this.userService.updateUserProfile(user, payload);
+    return this.userService.updateUserProfile(user.id, payload);
+  }
+
+  @ApiBearerAuth()
+  @Delete()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'delete user' })
+  async deleteUser(@CurrentUser() user: UserInfoType): Promise<void> {
+    return this.userService.deleteUser(user.id);
   }
 }

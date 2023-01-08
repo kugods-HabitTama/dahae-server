@@ -65,26 +65,29 @@ export class UserService {
   }
 
   async updateUserPassword(
-    userInfo: UserInfoType,
+    userId: string,
     payload: UpdatePasswordPayload,
   ): Promise<void> {
     const { currentPassword, targetPassword } = payload;
     const passwordMatch = await this.comparePasswordById(
-      userInfo.id,
+      userId,
       currentPassword,
     );
     if (!passwordMatch) throw new BadRequestException('Password mismatch');
 
     const hashedPassword = await bcrypt.hash(targetPassword, 10);
 
-    await this.userRepository.updatePasswordById(userInfo.id, hashedPassword);
+    await this.userRepository.updatePasswordById(userId, hashedPassword);
   }
 
   async updateUserProfile(
-    userInfo: UserInfoType,
+    userId: string,
     payload: UpdateProfilePayload,
   ): Promise<void> {
-    const { id } = userInfo;
-    console.log(await this.userRepository.updateProfileById(id, payload));
+    console.log(await this.userRepository.updateProfileById(userId, payload));
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await this.userRepository.deleteUserById(userId);
   }
 }
