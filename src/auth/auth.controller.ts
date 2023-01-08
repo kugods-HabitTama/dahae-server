@@ -9,6 +9,7 @@ import { AuthService } from './auth.service';
 import { CreateUserPayload } from './payload/create.user.payload';
 import { LoginUserPayload } from './payload/login.user.payload';
 import { CreateUserDto } from './dto/create.user.dto';
+import { AuthenticateEmailPayload } from './payload/authenticate.email.payload';
 
 @ApiTags('Auth API')
 @Controller('auth')
@@ -69,5 +70,13 @@ export class AuthController {
   })
   async checkNameExist(@Param('name') name): Promise<boolean> {
     return this.authService.checkNameExist(name);
+  }
+
+  @Post('/authenticate-email')
+  @ApiOperation({ summary: 'send authentication email' })
+  async authenticateEmail(
+    @Body() authenticateEmailPayload: AuthenticateEmailPayload,
+  ): Promise<string> {
+    return this.authService.authenticateEmail(authenticateEmailPayload.email);
   }
 }

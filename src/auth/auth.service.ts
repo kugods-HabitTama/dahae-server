@@ -9,7 +9,9 @@ import { TokenResponseT } from './type/token.response.type';
 import { CreateUserDto } from './dto/create.user.dto';
 import { LoginUserPayload } from './payload/login.user.payload';
 import { CreateUserPayload } from './payload/create.user.payload';
+import { generateAuthenticationCode } from 'src/utils/email';
 import * as bcrypt from 'bcryptjs';
+import * as nodeMailer from 'nodemailer';
 
 @Injectable()
 export class AuthService {
@@ -67,6 +69,34 @@ export class AuthService {
     const user = await this.userRepository.getUserByName(name);
 
     return !!user;
+  }
+
+  async authenticateEmail(email: string): Promise<string> {
+    const transporter = nodeMailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: process.env.NODEMAILER_USER,
+        pass: process.env.NODEMAILER_PASS,
+      },
+    });
+
+    const authenticationCode = generateAuthenticationCode();
+
+    const mailOptions = {
+      from: process.env.NODEMAILER_USER,
+      to: email,
+      subject: '[DAHAE] 이메일 인증번호',
+      html: `
+      DAHAE 이메일 인증번호입니다.<br/>
+
+      <b>인증번호</b>: ${authenticationCode}
+      
+      `,
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    return authenticationCode;
   }
 
   protected async generateAccessToken(userId: string): Promise<string> {
