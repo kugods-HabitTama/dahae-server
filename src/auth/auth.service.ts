@@ -83,6 +83,7 @@ export class AuthService {
     const authenticationCode = generateAuthenticationCode();
 
     const mailOptions = {
+      from: process.env.NODEMAILER_USER,
       to: email,
       subject: '[DAHAE] 이메일 인증번호',
       html: `
