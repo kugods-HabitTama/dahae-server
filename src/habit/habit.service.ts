@@ -46,7 +46,7 @@ export class HabitService {
         (habit) =>
           // habitRecord에 있는 habit이면 habitRecord를 반환하고 없으면 0과 관련한 값으로 채워서 리턴
           progressedRecordsData.find(
-            (habitWithRecord) => habitWithRecord.id === habit.id,
+            (habitWithRecord) => habitWithRecord.habit.id === habit.id,
           ) ?? {
             progress: 0,
             accomplished: false,
