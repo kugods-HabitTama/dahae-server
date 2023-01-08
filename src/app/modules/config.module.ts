@@ -13,5 +13,7 @@ export const configModule = ConfigModule.forRoot({
     JWT_ACCESS_TOKEN_EXPIRE: Joi.string().required(),
     JWT_REFRESH_TOKEN_EXPIRE: Joi.string().required(),
     JWT_SECRET_KEY: Joi.string().required(),
+    NODEMAILER_USER: Joi.string().required(),
+    NODEMAILER_PASS: Joi.string().required(),
   }),
 });
