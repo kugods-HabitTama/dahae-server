@@ -138,9 +138,12 @@ export class HabitRepository {
       // 삭제 후 생성을 한 트랜잭션으로 처리합니다.
       return this.prisma.$transaction(
         async (tx: Prisma.TransactionClient): Promise<HabitData> => {
-          const habit: Habit = await tx.habit.delete({
+          const habit: Habit = await tx.habit.update({
             where: {
               id: habitId,
+            },
+            data: {
+              isActive: false,
             },
           });
 
