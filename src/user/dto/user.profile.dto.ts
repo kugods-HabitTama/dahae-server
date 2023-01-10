@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { UserInfoType } from '../types/userInfo.type';
 
 export class UserProfileDto {
@@ -11,7 +11,11 @@ export class UserProfileDto {
   @ApiProperty({ description: '이름', type: String })
   name!: string;
 
-  @ApiProperty({ description: '프로필 사진 url', type: String })
+  @ApiPropertyOptional({
+    description: '프로필 사진 url',
+    type: String,
+    nullable: true,
+  })
   photo?: string;
 
   static of(data: UserInfoType): UserProfileDto {
