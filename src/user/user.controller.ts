@@ -52,17 +52,6 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @Put('password')
-  @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'update user password' })
-  async updatePassword(
-    @Body() payload: UpdatePasswordPayload,
-    @CurrentUser() user: UserInfoType,
-  ): Promise<void> {
-    return this.userService.updateUserPassword(user.id, payload);
-  }
-
-  @ApiBearerAuth()
   @Put('profile')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'update user profile' })

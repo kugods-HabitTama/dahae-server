@@ -1,16 +1,10 @@
-import {
-  ConflictException,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { TestPayload } from './payload/test.payload';
 import { TestDto } from './dto/test.dto';
 import { TestType } from './types/test.type';
 import { UserInfoType } from './types/userInfo.type';
 import { UserProfileDto } from './dto/user.profile.dto';
-import { UpdatePasswordPayload } from './payload/update.password.payload';
-import * as bcrypt from 'bcryptjs';
 import { UpdateProfilePayload } from './payload/update.profile.payload';
 
 @Injectable()
@@ -64,27 +58,6 @@ export class UserService {
 
   async getUserProfile(userInfo: UserInfoType): Promise<UserProfileDto> {
     return UserProfileDto.of(userInfo);
-  }
-
-  async comparePasswordById(userId: string, compare: string): Promise<boolean> {
-    const user = await this.userRepository.getUserById(userId);
-    return bcrypt.compare(compare, user.password);
-  }
-
-  async updateUserPassword(
-    userId: string,
-    payload: UpdatePasswordPayload,
-  ): Promise<void> {
-    const { currentPassword, targetPassword } = payload;
-    const passwordMatch = await this.comparePasswordById(
-      userId,
-      currentPassword,
-    );
-    if (!passwordMatch) throw new ConflictException('Password mismatch');
-
-    const hashedPassword = await bcrypt.hash(targetPassword, 10);
-
-    await this.userRepository.updatePassword(userId, hashedPassword);
   }
 
   async updateUserProfile(

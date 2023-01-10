@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -12,6 +13,7 @@ import { CreateUserPayload } from './payload/create.user.payload';
 import { generateAuthenticationCode } from 'src/utils/email';
 import * as bcrypt from 'bcryptjs';
 import * as nodeMailer from 'nodemailer';
+import { UpdatePasswordPayload } from '../user/payload/update.password.payload';
 
 @Injectable()
 export class AuthService {
@@ -118,5 +120,26 @@ export class AuthService {
     await this.userRepository.updateRefreshToken(userId, refreshToken);
 
     return refreshToken;
+  }
+
+  async comparePasswordById(userId: string, compare: string): Promise<boolean> {
+    const user = await this.userRepository.getUserById(userId);
+    return bcrypt.compare(compare, user.password);
+  }
+
+  async updateUserPassword(
+    userId: string,
+    payload: UpdatePasswordPayload,
+  ): Promise<void> {
+    const { currentPassword, targetPassword } = payload;
+    const passwordMatch = await this.comparePasswordById(
+      userId,
+      currentPassword,
+    );
+    if (!passwordMatch) throw new ConflictException('Password mismatch');
+
+    const hashedPassword = await bcrypt.hash(targetPassword, 10);
+
+    await this.userRepository.updatePassword(userId, hashedPassword);
   }
 }
