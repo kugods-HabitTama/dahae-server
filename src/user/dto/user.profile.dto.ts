@@ -16,7 +16,7 @@ export class UserProfileDto {
     type: String,
     nullable: true,
   })
-  photo?: string;
+  photo?: string | null;
 
   static of(data: UserInfoType): UserProfileDto {
     return {
