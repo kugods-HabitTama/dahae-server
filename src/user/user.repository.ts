@@ -96,7 +96,7 @@ export class UserRepository {
       where: { id },
       data: {
         deletedAt: new Date(),
-        email: '',
+        email: id,
         password: '',
         name: '',
         photo: '',
