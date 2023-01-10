@@ -35,7 +35,7 @@ export class UserRepository {
     return update;
   }
 
-  async updatePasswordById(id: string, password: string): Promise<User> {
+  async updatePassword(id: string, password: string): Promise<User> {
     return this.prisma.user.update({
       where: {
         id,
@@ -46,7 +46,7 @@ export class UserRepository {
     });
   }
 
-  async updateProfileById(
+  async updateProfile(
     id: string,
     payload: UpdateProfilePayload,
   ): Promise<User> {
@@ -91,7 +91,7 @@ export class UserRepository {
     return this.prisma.user.findFirst({});
   }
 
-  async deleteUserById(id: string): Promise<User> {
+  async deleteUser(id: string): Promise<User> {
     return this.prisma.user.update({
       where: { id },
       data: {

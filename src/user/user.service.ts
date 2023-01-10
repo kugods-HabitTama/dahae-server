@@ -1,5 +1,5 @@
 import {
-  BadRequestException,
+  ConflictException,
   Injectable,
   UnauthorizedException,
 } from '@nestjs/common';
@@ -66,7 +66,7 @@ export class UserService {
     return UserProfileDto.of(userInfo);
   }
 
-  async comparePasswordById(userId: string, compare: string): Promise<Boolean> {
+  async comparePasswordById(userId: string, compare: string): Promise<boolean> {
     const user = await this.userRepository.getUserById(userId);
     return bcrypt.compare(compare, user.password);
   }
@@ -80,21 +80,21 @@ export class UserService {
       userId,
       currentPassword,
     );
-    if (!passwordMatch) throw new BadRequestException('Password mismatch');
+    if (!passwordMatch) throw new ConflictException('Password mismatch');
 
     const hashedPassword = await bcrypt.hash(targetPassword, 10);
 
-    await this.userRepository.updatePasswordById(userId, hashedPassword);
+    await this.userRepository.updatePassword(userId, hashedPassword);
   }
 
   async updateUserProfile(
     userId: string,
     payload: UpdateProfilePayload,
   ): Promise<void> {
-    console.log(await this.userRepository.updateProfileById(userId, payload));
+    await this.userRepository.updateProfile(userId, payload);
   }
 
   async deleteUser(userId: string): Promise<void> {
-    await this.userRepository.deleteUserById(userId);
+    await this.userRepository.deleteUser(userId);
   }
 }
