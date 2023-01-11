@@ -1,8 +1,8 @@
-import { IsDefined, IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateProfilePayload {
-  @IsDefined()
+  @IsOptional()
   @IsString()
   @ApiPropertyOptional({ type: String, description: '이름' })
   name?: string;
