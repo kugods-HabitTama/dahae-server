@@ -3,8 +3,8 @@ import {
   Controller,
   Delete,
   Get,
+  Patch,
   Post,
-  Put,
   UseGuards,
 } from '@nestjs/common';
 import {
@@ -20,7 +20,6 @@ import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorator/user.decorator';
 import { UserInfoType } from './types/userInfo.type';
 import { UserProfileDto } from './dto/user.profile.dto';
-import { UpdatePasswordPayload } from './payload/update.password.payload';
 import { UpdateProfilePayload } from './payload/update.profile.payload';
 
 @ApiTags('User API')
@@ -52,7 +51,7 @@ export class UserController {
   }
 
   @ApiBearerAuth()
-  @Put('profile')
+  @Patch('profile')
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: 'update user profile' })
   async updateProfile(
