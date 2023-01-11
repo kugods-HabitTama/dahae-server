@@ -6,7 +6,6 @@ import { TestType } from './types/test.type';
 import { UserInfoType } from './types/userInfo.type';
 import { UserProfileDto } from './dto/user.profile.dto';
 import { UpdateProfilePayload } from './payload/update.profile.payload';
-import { UpdateUserInputType } from './types/update.user.input.type';
 
 @Injectable()
 export class UserService {
@@ -65,10 +64,7 @@ export class UserService {
     userId: string,
     payload: UpdateProfilePayload,
   ): Promise<void> {
-    const updateInput: UpdateUserInputType = {
-      ...payload,
-    };
-    await this.userRepository.updateProfile(userId, updateInput);
+    await this.userRepository.updateProfile(userId, payload);
   }
 
   async deleteUser(userId: string): Promise<void> {
