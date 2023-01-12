@@ -1,5 +1,15 @@
-import { Controller, Body, Post, Res, Get, Param } from '@nestjs/common';
 import {
+  Controller,
+  Body,
+  Post,
+  Res,
+  Get,
+  Param,
+  Put,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
   ApiParam,
@@ -10,6 +20,10 @@ import { CreateUserPayload } from './payload/create.user.payload';
 import { LoginUserPayload } from './payload/login.user.payload';
 import { CreateUserDto } from './dto/create.user.dto';
 import { AuthenticateEmailPayload } from './payload/authenticate.email.payload';
+import { JwtAuthGuard } from './guard/jwt-auth.guard';
+import { UpdatePasswordPayload } from '../user/payload/update.password.payload';
+import { CurrentUser } from './decorator/user.decorator';
+import { UserInfoType } from '../user/types/userInfo.type';
 
 @ApiTags('Auth API')
 @Controller('auth')
@@ -78,5 +92,16 @@ export class AuthController {
     @Body() authenticateEmailPayload: AuthenticateEmailPayload,
   ): Promise<string> {
     return this.authService.authenticateEmail(authenticateEmailPayload.email);
+  }
+
+  @ApiBearerAuth()
+  @Put('password')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'update user password' })
+  async updatePassword(
+    @Body() payload: UpdatePasswordPayload,
+    @CurrentUser() user: UserInfoType,
+  ): Promise<void> {
+    return this.authService.updateUserPassword(user.id, payload);
   }
 }

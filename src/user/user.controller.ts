@@ -1,4 +1,12 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  Patch,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
@@ -11,6 +19,8 @@ import { TestPayload } from './payload/test.payload';
 import { JwtAuthGuard } from '../auth/guard/jwt-auth.guard';
 import { CurrentUser } from '../auth/decorator/user.decorator';
 import { UserInfoType } from './types/userInfo.type';
+import { UserProfileDto } from './dto/user.profile.dto';
+import { UpdateProfilePayload } from './payload/update.profile.payload';
 
 @ApiTags('User API')
 @Controller('users')
@@ -29,5 +39,33 @@ export class UserController {
   ): Promise<TestDto> {
     console.log(user);
     return this.userService.test(payload);
+  }
+
+  @ApiBearerAuth()
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'get user profile ' })
+  @ApiOkResponse({ type: UserProfileDto })
+  async getProfile(@CurrentUser() user: UserInfoType): Promise<UserProfileDto> {
+    return this.userService.getUserProfile(user);
+  }
+
+  @ApiBearerAuth()
+  @Patch('profile')
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'update user profile' })
+  async updateProfile(
+    @Body() payload: UpdateProfilePayload,
+    @CurrentUser() user: UserInfoType,
+  ): Promise<void> {
+    return this.userService.updateUserProfile(user.id, payload);
+  }
+
+  @ApiBearerAuth()
+  @Delete()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: 'delete user' })
+  async deleteUser(@CurrentUser() user: UserInfoType): Promise<void> {
+    return this.userService.deleteUser(user.id);
   }
 }

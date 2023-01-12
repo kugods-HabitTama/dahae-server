@@ -1,9 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { UserRepository } from './user.repository';
 import { TestPayload } from './payload/test.payload';
 import { TestDto } from './dto/test.dto';
 import { TestType } from './types/test.type';
 import { UserInfoType } from './types/userInfo.type';
+import { UserProfileDto } from './dto/user.profile.dto';
+import { UpdateProfilePayload } from './payload/update.profile.payload';
 
 @Injectable()
 export class UserService {
@@ -23,6 +25,9 @@ export class UserService {
 
   async getUserInfoById(userId: string): Promise<UserInfoType> {
     const user = await this.userRepository.getUserById(userId);
+
+    if (!user) throw new UnauthorizedException('unavailable user');
+
     return {
       id: user.id,
       createdAt: user.createdAt,
@@ -49,5 +54,20 @@ export class UserService {
       streak: user.streak,
       marketingAgreement: user.marketingAgreement,
     };
+  }
+
+  async getUserProfile(userInfo: UserInfoType): Promise<UserProfileDto> {
+    return UserProfileDto.of(userInfo);
+  }
+
+  async updateUserProfile(
+    userId: string,
+    payload: UpdateProfilePayload,
+  ): Promise<void> {
+    await this.userRepository.updateProfile(userId, payload);
+  }
+
+  async deleteUser(userId: string): Promise<void> {
+    await this.userRepository.deleteUser(userId);
   }
 }
