@@ -2,7 +2,6 @@ import { IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 
 export class UpdateProfilePayload {
-  @IsOptional()
   @IsString()
   @ApiPropertyOptional({ type: String, description: '이름' })
   name?: string;
