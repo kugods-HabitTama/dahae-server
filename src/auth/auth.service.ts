@@ -1,6 +1,5 @@
 import { LoginDto } from './dto/login.dto';
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -34,7 +33,7 @@ export class AuthService {
       user.password,
     );
 
-    if (!passwordMatch) throw new BadRequestException('Password mismatch');
+    if (!passwordMatch) throw new ConflictException('Password mismatch');
 
     const refreshToken =
       user.refreshToken || (await this.generateRefreshToken(user.id));
@@ -49,7 +48,7 @@ export class AuthService {
       createUserPayload.email,
     );
 
-    if (user) throw new BadRequestException('Email already exists');
+    if (user) throw new ConflictException('Email already exists');
 
     const hashedPassword = await bcrypt.hash(createUserPayload.password, 10);
 
