@@ -1,3 +1,4 @@
+import { LoginDto } from './dto/login.dto';
 import {
   BadRequestException,
   ConflictException,
@@ -6,7 +7,6 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/user/user.repository';
-import { TokenResponseT } from './type/token.response.type';
 import { CreateUserDto } from './dto/create.user.dto';
 import { LoginUserPayload } from './payload/login.user.payload';
 import { CreateUserPayload } from './payload/create.user.payload';
@@ -22,7 +22,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginUserPayload: LoginUserPayload): Promise<TokenResponseT> {
+  async login(loginUserPayload: LoginUserPayload): Promise<LoginDto> {
     const user = await this.userRepository.getUserByEmail(
       loginUserPayload.email,
     );
