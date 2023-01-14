@@ -1,12 +1,11 @@
+import { LoginDto } from './dto/login.dto';
 import {
-  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/user/user.repository';
-import { TokenResponseT } from './type/token.response.type';
 import { CreateUserDto } from './dto/create.user.dto';
 import { LoginUserPayload } from './payload/login.user.payload';
 import { CreateUserPayload } from './payload/create.user.payload';
@@ -22,7 +21,7 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async login(loginUserPayload: LoginUserPayload): Promise<TokenResponseT> {
+  async login(loginUserPayload: LoginUserPayload): Promise<LoginDto> {
     const user = await this.userRepository.getUserByEmail(
       loginUserPayload.email,
     );
@@ -34,7 +33,7 @@ export class AuthService {
       user.password,
     );
 
-    if (!passwordMatch) throw new BadRequestException('Password mismatch');
+    if (!passwordMatch) throw new ConflictException('Password mismatch');
 
     const refreshToken =
       user.refreshToken || (await this.generateRefreshToken(user.id));
@@ -49,7 +48,7 @@ export class AuthService {
       createUserPayload.email,
     );
 
-    if (user) throw new BadRequestException('Email already exists');
+    if (user) throw new ConflictException('Email already exists');
 
     const hashedPassword = await bcrypt.hash(createUserPayload.password, 10);
 

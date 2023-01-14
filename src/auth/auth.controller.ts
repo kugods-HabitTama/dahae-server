@@ -1,3 +1,4 @@
+import { LoginDto } from './dto/login.dto';
 import {
   Controller,
   Body,
@@ -32,23 +33,8 @@ export class AuthController {
 
   @Post('login')
   @ApiOperation({ summary: 'user login' })
-  async login(
-    @Body() loginUserPayload: LoginUserPayload,
-    @Res({ passthrough: true }) res,
-  ): Promise<void> {
-    const { accessToken, refreshToken } = await this.authService.login(
-      loginUserPayload,
-    );
-
-    res.cookie('refresh_token', refreshToken, {
-      path: '/auth',
-      httpOnly: true,
-    });
-
-    res.cookie('access_token', accessToken, {
-      path: '/auth',
-      httpOnly: true,
-    });
+  async login(@Body() loginUserPayload: LoginUserPayload): Promise<LoginDto> {
+    return this.authService.login(loginUserPayload);
   }
 
   @Post('register')
