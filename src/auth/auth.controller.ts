@@ -74,6 +74,7 @@ export class AuthController {
 
   @Post('/authenticate-email')
   @ApiOperation({ summary: 'send authentication email' })
+  @ApiOkResponse({ type: String, description: '6자리 정수 인증번호' })
   async authenticateEmail(
     @Body() authenticateEmailPayload: AuthenticateEmailPayload,
   ): Promise<string> {
