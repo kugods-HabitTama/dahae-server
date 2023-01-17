@@ -12,7 +12,6 @@ async function bootstrap() {
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
-      forbidUnknownValues: true,
       skipUndefinedProperties: true,
       stopAtFirstError: true,
     }),
