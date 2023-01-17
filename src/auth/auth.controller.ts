@@ -1,19 +1,19 @@
+import { AuthNameQuery } from './query/auth-name.query';
+import { AuthEmailQuery } from './query/auth-email.query';
 import { LoginDto } from './dto/login.dto';
 import {
   Controller,
   Body,
   Post,
-  Res,
   Get,
-  Param,
   Put,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOkResponse,
   ApiOperation,
-  ApiParam,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
@@ -25,6 +25,7 @@ import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { UpdatePasswordPayload } from '../user/payload/update.password.payload';
 import { CurrentUser } from './decorator/user.decorator';
 import { UserInfoType } from '../user/types/userInfo.type';
+import { query } from 'express';
 
 @ApiTags('Auth API')
 @Controller('auth')
@@ -46,30 +47,18 @@ export class AuthController {
     return this.authService.register(createUserPayload);
   }
 
-  @Get('email/duplicate/:email')
+  @Get('email/duplicate')
   @ApiOperation({ summary: 'check whether an email exists' })
-  @ApiOkResponse({ type: Boolean })
-  @ApiParam({
-    name: 'email',
-    required: true,
-    description: 'email',
-    type: String,
-  })
-  async checkEmailExist(@Param('email') email): Promise<boolean> {
-    return this.authService.checkEmailExist(email);
+  @ApiOkResponse({ type: Boolean, description: 'true: 중복, false: 중복아님' })
+  async checkEmailExist(@Query() query: AuthEmailQuery): Promise<boolean> {
+    return this.authService.checkEmailExist(query.email);
   }
 
-  @Get('name/duplicate/:name')
+  @Get('name/duplicate')
   @ApiOperation({ summary: 'check whether a name exists' })
-  @ApiOkResponse({ type: Boolean })
-  @ApiParam({
-    name: 'name',
-    required: true,
-    description: 'name',
-    type: String,
-  })
-  async checkNameExist(@Param('name') name): Promise<boolean> {
-    return this.authService.checkNameExist(name);
+  @ApiOkResponse({ type: Boolean, description: 'true: 중복, false: 중복아님' })
+  async checkNameExist(@Query() query: AuthNameQuery): Promise<boolean> {
+    return this.authService.checkNameExist(query.name);
   }
 
   @Post('/authenticate-email')
