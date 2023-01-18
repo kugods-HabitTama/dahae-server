@@ -18,4 +18,6 @@ export type UserInfoType = {
   streak: number;
 
   marketingAgreement: boolean;
+
+  refreshToken: string;
 };

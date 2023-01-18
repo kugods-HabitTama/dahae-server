@@ -38,6 +38,7 @@ export class UserService {
       os: user.os,
       streak: user.streak,
       marketingAgreement: user.marketingAgreement,
+      refreshToken: user.refreshToken,
     };
   }
 
@@ -53,6 +54,7 @@ export class UserService {
       os: user.os,
       streak: user.streak,
       marketingAgreement: user.marketingAgreement,
+      refreshToken: user.refreshToken,
     };
   }
 
