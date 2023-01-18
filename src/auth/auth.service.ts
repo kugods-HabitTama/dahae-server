@@ -1,4 +1,3 @@
-import { UserInfoType } from 'src/user/types/userInfo.type';
 import { LoginDto } from './dto/login.dto';
 import {
   ConflictException,
