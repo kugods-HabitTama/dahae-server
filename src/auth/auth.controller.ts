@@ -1,3 +1,4 @@
+import { RequestWithAuth } from './type/request-with-auth.type';
 import { AuthNameQuery } from './query/auth-name.query';
 import { AuthEmailQuery } from './query/auth-email.query';
 import { LoginDto } from './dto/login.dto';
@@ -9,6 +10,7 @@ import {
   Put,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -51,8 +53,14 @@ export class AuthController {
   @UseGuards(JwtAuthGuard)
   @ApiOperation({ summary: '토큰이 만료된 경우 refresh합니다.' })
   @ApiOkResponse({ type: LoginDto })
-  async refresh(@CurrentUser() user: UserInfoType): Promise<LoginDto> {
-    return this.authService.refresh(user.id);
+  async refresh(
+    @CurrentUser() user: UserInfoType,
+    @Req() req: RequestWithAuth,
+  ): Promise<LoginDto> {
+    return this.authService.refresh(
+      user,
+      req.headers.authorization.replace('Bearer ', ''),
+    );
   }
 
   @Get('email/duplicate')

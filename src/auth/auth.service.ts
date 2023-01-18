@@ -1,8 +1,10 @@
+import { UserInfoType } from 'src/user/types/userInfo.type';
 import { LoginDto } from './dto/login.dto';
 import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/user/user.repository';
@@ -60,10 +62,16 @@ export class AuthService {
     });
   }
 
-  async refresh(userId: string): Promise<LoginDto> {
+  async refresh(
+    user: UserInfoType,
+    prevRefreshToken: string,
+  ): Promise<LoginDto> {
+    if (user.refreshToken !== prevRefreshToken)
+      throw new UnauthorizedException();
+
     const [accessToken, refreshToken] = await Promise.all([
-      this.generateAccessToken(userId),
-      this.generateRefreshToken(userId),
+      this.generateAccessToken(user.id),
+      this.generateRefreshToken(user.id),
     ]);
 
     return { accessToken, refreshToken };

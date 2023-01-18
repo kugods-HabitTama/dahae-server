@@ -1,5 +1,5 @@
 export type RequestWithAuth = Request & {
   headers: {
-    Authorization: string;
+    authorization: string;
   };
 };
