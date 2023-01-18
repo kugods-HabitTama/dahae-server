@@ -1,3 +1,4 @@
+import { UserInfoType } from 'src/user/types/userInfo.type';
 import { LoginDto } from './dto/login.dto';
 import {
   ConflictException,
@@ -35,10 +36,10 @@ export class AuthService {
 
     if (!passwordMatch) throw new ConflictException('Password mismatch');
 
-    const refreshToken =
-      user.refreshToken || (await this.generateRefreshToken(user.id));
-
-    const accessToken = await this.generateAccessToken(user.id);
+    const [accessToken, refreshToken] = await Promise.all([
+      this.generateAccessToken(user.id),
+      this.generateRefreshToken(user.id),
+    ]);
 
     return { accessToken, refreshToken };
   }
@@ -58,6 +59,15 @@ export class AuthService {
       name: createUserPayload.name,
       os: createUserPayload.os,
     });
+  }
+
+  async refresh(userId: string): Promise<LoginDto> {
+    const [accessToken, refreshToken] = await Promise.all([
+      this.generateAccessToken(userId),
+      this.generateRefreshToken(userId),
+    ]);
+
+    return { accessToken, refreshToken };
   }
 
   async checkEmailExist(email: string): Promise<boolean> {
