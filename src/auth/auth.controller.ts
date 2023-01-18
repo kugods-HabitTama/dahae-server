@@ -1,3 +1,4 @@
+import { RequestWithAuth } from './type/request-with-auth.type';
 import { AuthNameQuery } from './query/auth-name.query';
 import { AuthEmailQuery } from './query/auth-email.query';
 import { LoginDto } from './dto/login.dto';
@@ -9,6 +10,7 @@ import {
   Put,
   UseGuards,
   Query,
+  Req,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -25,7 +27,6 @@ import { JwtAuthGuard } from './guard/jwt-auth.guard';
 import { UpdatePasswordPayload } from '../user/payload/update.password.payload';
 import { CurrentUser } from './decorator/user.decorator';
 import { UserInfoType } from '../user/types/userInfo.type';
-import { query } from 'express';
 
 @ApiTags('Auth API')
 @Controller('auth')
@@ -45,6 +46,21 @@ export class AuthController {
     @Body() createUserPayload: CreateUserPayload,
   ): Promise<CreateUserDto> {
     return this.authService.register(createUserPayload);
+  }
+
+  @Post('refresh')
+  @ApiBearerAuth()
+  @UseGuards(JwtAuthGuard)
+  @ApiOperation({ summary: '토큰이 만료된 경우 refresh합니다.' })
+  @ApiOkResponse({ type: LoginDto })
+  async refresh(
+    @CurrentUser() user: UserInfoType,
+    @Req() req: RequestWithAuth,
+  ): Promise<LoginDto> {
+    return this.authService.refresh(
+      user,
+      req.headers.authorization.replace('Bearer ', ''),
+    );
   }
 
   @Get('email/duplicate')

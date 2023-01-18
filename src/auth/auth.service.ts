@@ -1,8 +1,10 @@
+import { UserInfoType } from 'src/user/types/userInfo.type';
 import { LoginDto } from './dto/login.dto';
 import {
   ConflictException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UserRepository } from 'src/user/user.repository';
@@ -35,10 +37,10 @@ export class AuthService {
 
     if (!passwordMatch) throw new ConflictException('Password mismatch');
 
-    const refreshToken =
-      user.refreshToken || (await this.generateRefreshToken(user.id));
-
-    const accessToken = await this.generateAccessToken(user.id);
+    const [accessToken, refreshToken] = await Promise.all([
+      this.generateAccessToken(user.id),
+      this.generateRefreshToken(user.id),
+    ]);
 
     return { accessToken, refreshToken };
   }
@@ -58,6 +60,21 @@ export class AuthService {
       name: createUserPayload.name,
       os: createUserPayload.os,
     });
+  }
+
+  async refresh(
+    user: UserInfoType,
+    prevRefreshToken: string,
+  ): Promise<LoginDto> {
+    if (user.refreshToken !== prevRefreshToken)
+      throw new UnauthorizedException();
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.generateAccessToken(user.id),
+      this.generateRefreshToken(user.id),
+    ]);
+
+    return { accessToken, refreshToken };
   }
 
   async checkEmailExist(email: string): Promise<boolean> {
